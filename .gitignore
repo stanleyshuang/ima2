@@ -136,3 +136,8 @@ dmypy.json
 
 # Customized
 tftp/
+mirai/release/
+mirai/dlr/release/
+mirai/loader/bins/
+mirai/loader/loader
+mirai/loader/reports
