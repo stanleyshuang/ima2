@@ -62,7 +62,12 @@ mkdir -p /vagrant/tftp
 if ps | grep dnsmasq ; then
   killall dnsmasq || true
 fi
+echo ">>> Preparing dnsmasq.conf, cnc server IP [$cnc_ip]"
 cp /vagrant/configs/dnsmasq.conf /etc/dnsmasq.conf
+cp /vagrant/configs/dnsmasqhosts /etc/dnsmasqhosts
+cp /vagrant/configs/resolv.dnsmasq /etc/resolv.dnsmasq
+sed -i "s|{cnc_ip}|$cnc_ip|g;" /etc/dnsmasq.conf
+sed -i "s|{cnc_ip}|$cnc_ip|g;" /etc/dnsmasqhosts
 dnsmasq
 
 echo ">>> Building mirai bot and cnc..."
