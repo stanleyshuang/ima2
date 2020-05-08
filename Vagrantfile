@@ -5,7 +5,7 @@ Vagrant.configure("2") do |config|
 
     config.vm.define "mirai" do |mirai|
       mirai.vm.box = "ubuntu/xenial64"
-      mirai.vm.network "public_network", bridge: "en6: USB 10/100/1000 LAN"
+      mirai.vm.network "public_network", bridge: "en6: USB 10/100/1000 LAN", ip: "192.168.11.3"
       mirai.vm.provision "shell", path: "configs/provision.sh"
       mirai.vm.hostname = "mirai"
 
@@ -19,7 +19,7 @@ Vagrant.configure("2") do |config|
 
     (1..10).each do |i|
       config.vm.define "target_#{i}" do |target|
-        target.vm.network "public_network", bridge: "en6: USB 10/100/1000 LAN"
+        target.vm.network "public_network", bridge: "en6: USB 10/100/1000 LAN", ip: "192.168.11.#{100+i}"
         target.vm.box = "olbat/tiny-core-micro"
         config.vm.box_check_update = false
         target.ssh.shell = "sh"

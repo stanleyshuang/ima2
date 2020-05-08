@@ -130,3 +130,9 @@ dmypy.json
 
 # on macOS
 .DS_Store
+
+# Vagrant
+.vagrant
+
+# Customized
+tftp/

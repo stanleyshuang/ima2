@@ -81,5 +81,6 @@ cp /vagrant/mirai/dlr/release/* /vagrant/mirai/loader/bins/
 echo ">>> Building loader..."
 cd /vagrant/mirai/loader
 ./build.sh
+/vagrant/mirai/reports/build.sh 
 
 echo ">>> Done"
