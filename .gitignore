@@ -138,6 +138,7 @@ dmypy.json
 tftp/
 mirai/release/
 mirai/dlr/release/
+mirai/dlr/debug/
 mirai/loader/bins/
 mirai/loader/loader
 mirai/loader/reports
