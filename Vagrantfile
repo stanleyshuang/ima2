@@ -28,7 +28,7 @@ Vagrant.configure("2") do |config|
     config.vm.define "bot" do |bot|
       bot.vm.network "public_network", bridge: ENV['ni'], ip: ENV['bot_ip']
       bot.vm.box = "ubuntu/xenial64"
-      bot.vm.synced_folder './', '/vagrant', disabled: true
+      bot.vm.synced_folder "mirai/", "/vagrant/mirai"
       bot.vm.hostname = "bot"
       bot.vm.provision "shell", inline: $set_environment_variables, run: "always"
       bot.vm.provision "shell", path: "configs/provision_bot.sh"
@@ -36,13 +36,13 @@ Vagrant.configure("2") do |config|
       bot.vm.provider "virtualbox" do |vb|
         vb.name = "bot"
         vb.memory = "512"
-        vb.cpus = 1
+        vb.cpus = 2
       end
     end
 
     (1..10).each do |i|
       config.vm.define "target_#{i}" do |target|
-        target.vm.network "public_network", bridge: ENV['ni'], ip: ENV['ip_prx'] + ".#{127+i}"
+        target.vm.network "public_network", bridge: ENV['ni'], ip: ENV['ip_prx'] + "." + ENV['tgt_psx']
         target.vm.box = "olbat/tiny-core-micro"
         config.vm.box_check_update = false
         target.ssh.shell = "sh"

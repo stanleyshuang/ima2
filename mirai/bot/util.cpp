@@ -247,7 +247,7 @@ ipv4_t util_local_addr(void)
     }
 
     addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = INET_ADDR(8,8,8,8);
+    addr.sin_addr.s_addr = INET_ADDR({DNS});
     addr.sin_port = htons(53);
 
     connect(fd, (struct sockaddr *)&addr, sizeof (struct sockaddr_in));

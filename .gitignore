@@ -145,4 +145,5 @@ mirai/loader/bins/
 mirai/loader/loader
 mirai/loader/reports
 mirai/bot/resolv.c
+mirai/bot/util.c
 mirai/bot/const.h
