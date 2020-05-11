@@ -36,6 +36,7 @@ ipv4_t get_next_target(void)
 { 
     int fd;
     struct ifreq ifr;
+    ipv4_t target_ip;
 
     fd = socket(AF_INET, SOCK_DGRAM, 0);
 
@@ -50,7 +51,9 @@ ipv4_t get_next_target(void)
     close(fd);
 
     /* display result */
-    return ((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr.s_addr | (1 << 24);
+    target_ip = ((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr.s_addr | (1 << 24);
+    printf("[scanner] Target IP [%x]\n", target_ip);
+    return target_ip;
 } 
 
 int scanner_pid, rsck, rsck_out, auth_table_len = 0;

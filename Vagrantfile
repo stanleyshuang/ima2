@@ -23,6 +23,21 @@ Vagrant.configure("2") do |config|
       end
     end
 
+    config.vm.define "bot" do |bot|
+      bot.vm.network "public_network", bridge: ENV['ni'], ip: ENV['ip_prx'] + ".128"
+      bot.vm.box = "ubuntu/xenial64"
+      bot.vm.synced_folder './', '/vagrant', disabled: true
+      bot.vm.hostname = "bot"
+      bot.vm.provision "shell", inline: $set_environment_variables, run: "always"
+      bot.vm.provision "shell", path: "configs/provision_bot.sh"
+      
+      bot.vm.provider "virtualbox" do |vb|
+        vb.name = "bot"
+        vb.memory = "512"
+        vb.cpus = 1
+      end
+    end
+
     (1..10).each do |i|
       config.vm.define "target_#{i}" do |target|
         target.vm.network "public_network", bridge: ENV['ni'], ip: ENV['ip_prx'] + ".#{128+i}"
@@ -41,5 +56,5 @@ Vagrant.configure("2") do |config|
         end
       end
     end
-
+  
 end
