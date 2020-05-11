@@ -22,15 +22,31 @@ source ~/.bashrc
 #  git clone https://github.com/James-Gallagher/Mirai.git /vagrant/mirai
 #fi
 
-if [ ! -d /etc/xcompile ]; then
-  echo ">>> Installing crosscompilers..."
-  mkdir /etc/xcompile
-  cd /etc/xcompile
- 
-  COMPILERS="cross-compiler-armv4l cross-compiler-i586 cross-compiler-m68k cross-compiler-mips cross-compiler-mipsel cross-compiler-powerpc cross-compiler-sh4 cross-compiler-sparc"
+COMPILERS="cross-compiler-armv4l cross-compiler-i586 cross-compiler-m68k cross-compiler-mips cross-compiler-mipsel cross-compiler-powerpc cross-compiler-sh4 cross-compiler-sparc"
+
+if [ ! -d /vagrant/downloads ]; then
+  echo ">>> downloading crosscompilers..."
+  mkdir /vagrant/downloads/
+  cd /vagrant/downloads/
 
   for compiler in $COMPILERS; do        
     wget -q https://www.uclibc.org/downloads/binaries/0.9.30.1/${compiler}.tar.bz2 --no-check-certificate
+    if [ -f "${compiler}.tar.bz2" ]; then
+      echo ">> $compiler downloaded"
+    else
+      echo "!> Can not download $compiler"
+    fi
+  done
+
+fi
+
+if [ ! -d /etc/xcompile ]; then
+  echo ">>> Installing crosscompilers..."
+  mkdir /etc/xcompile/
+  cd /etc/xcompile/
+
+  for compiler in $COMPILERS; do        
+    cp /vagrant/downloads/${compiler}.tar.bz2 .
     if [ -f "${compiler}.tar.bz2" ]; then
       tar -jxf ${compiler}.tar.bz2
       rm ${compiler}.tar.bz2
@@ -58,6 +74,8 @@ echo ">>> Configuring sql..."
 mysql < /vagrant/configs/setup_sql.sql
 
 echo ">>> Configuring dnsmasq..."
+echo "service systemd-resolved stop"
+      service systemd-resolved stop
 mkdir -p /vagrant/tftp
 if ps | grep dnsmasq ; then
   killall dnsmasq || true
@@ -66,8 +84,8 @@ echo ">>> Preparing dnsmasq.conf, cnc server IP [$cnc_ip]"
 cp /vagrant/configs/dnsmasq.conf /etc/dnsmasq.conf
 cp /vagrant/configs/dnsmasqhosts /etc/dnsmasqhosts
 cp /vagrant/configs/resolv.dnsmasq /etc/resolv.dnsmasq
-sed -i "s|{cnc_ip}|$cnc_ip|g;" /etc/dnsmasq.conf
 sed -i "s|{cnc_ip}|$cnc_ip|g;" /etc/dnsmasqhosts
+sed -i "s|{bot_ip}|$bot_ip|g;" /etc/dnsmasqhosts
 dnsmasq
 
 echo ">>> Building mirai bot and cnc..."

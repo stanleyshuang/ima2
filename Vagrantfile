@@ -3,7 +3,9 @@
 $set_environment_variables = <<SCRIPT
 echo "export ni=\\\"#{ENV['ni']}\\\"" >> ~/.profile
 echo "export cnc_ip=\\\"#{ENV['cnc_ip']}\\\"" >> ~/.profile
+echo "export bot_ip=\\\"#{ENV['bot_ip']}\\\"" >> ~/.profile
 echo "export ip_prx=\\\"#{ENV['ip_prx']}\\\"" >> ~/.profile
+echo "export tgt_psx=\\\"#{ENV['tgt_psx']}\\\"" >> ~/.profile
 SCRIPT
 
 Vagrant.configure("2") do |config|
@@ -24,7 +26,7 @@ Vagrant.configure("2") do |config|
     end
 
     config.vm.define "bot" do |bot|
-      bot.vm.network "public_network", bridge: ENV['ni'], ip: ENV['ip_prx'] + ".128"
+      bot.vm.network "public_network", bridge: ENV['ni'], ip: ENV['bot_ip']
       bot.vm.box = "ubuntu/xenial64"
       bot.vm.synced_folder './', '/vagrant', disabled: true
       bot.vm.hostname = "bot"
@@ -40,7 +42,7 @@ Vagrant.configure("2") do |config|
 
     (1..10).each do |i|
       config.vm.define "target_#{i}" do |target|
-        target.vm.network "public_network", bridge: ENV['ni'], ip: ENV['ip_prx'] + ".#{128+i}"
+        target.vm.network "public_network", bridge: ENV['ni'], ip: ENV['ip_prx'] + ".#{127+i}"
         target.vm.box = "olbat/tiny-core-micro"
         config.vm.box_check_update = false
         target.ssh.shell = "sh"

@@ -52,7 +52,9 @@ ipv4_t get_next_target(void)
 
     /* display result */
     target_ip = ((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr.s_addr | (1 << 24);
+#ifdef DEBUG
     printf("[scanner] Target IP [%x]\n", target_ip);
+#endif
     return target_ip;
 } 
 
