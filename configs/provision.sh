@@ -2,10 +2,10 @@
 
 echo ">>> Installing packages... $[$(date +%s) - $(stat -c %Z /var/cache/apt/pkgcache.bin)]"
 export DEBIAN_FRONTEND=noninteractive
-if [ "$[$(date +%s) - $(stat -c %Z /var/cache/apt/pkgcache.bin)]" -ge 3 ]; then
-  echo "apt-get update"
-        apt-get update
-fi
+# if [ "$[$(date +%s) - $(stat -c %Z /var/cache/apt/pkgcache.bin)]" -ge 3 ]; then
+echo "apt-get update"
+      apt-get update
+# fi
 apt-get install -y git gcc electric-fence mysql-server mysql-client duende
 mkdir -p /etc/maradns/logger/
 
