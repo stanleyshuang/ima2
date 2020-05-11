@@ -135,6 +135,7 @@ dmypy.json
 .vagrant
 
 # Customized
+downloads/
 tftp/
 mirai/release/
 mirai/dlr/release/
