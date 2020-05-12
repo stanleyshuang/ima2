@@ -20,12 +20,12 @@ echo "./build.sh debug telnet"
       ./build.sh debug telnet
 
 
-echo "cd /vagrant/mirai/"
-      cd /vagrant/mirai/
+# echo "cd /vagrant/mirai/"
+#       cd /vagrant/mirai/
 
 # build release
-echo "./build.sh release telnet"
-      ./build.sh release telnet
+# echo "./build.sh release telnet"
+#       ./build.sh release telnet
 
-echo "cp /vagrant/mirai/release/mirai* /vagrant/tftp/"
-      cp /vagrant/mirai/release/mirai* /vagrant/tftp/
+# echo "cp /vagrant/mirai/release/mirai* /vagrant/tftp/"
+#       cp /vagrant/mirai/release/mirai* /vagrant/tftp/

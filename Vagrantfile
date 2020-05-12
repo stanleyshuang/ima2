@@ -40,9 +40,10 @@ Vagrant.configure("2") do |config|
       end
     end
 
+    tgt_psx = ENV['tgt_psx'].to_i
     (1..10).each do |i|
       config.vm.define "target_#{i}" do |target|
-        target.vm.network "public_network", bridge: ENV['ni'], ip: ENV['ip_prx'] + "." + ENV['tgt_psx']
+        target.vm.network "public_network", bridge: ENV['ni'], ip: ENV['ip_prx'] + ".#{tgt_psx+i}"
         target.vm.box = "olbat/tiny-core-micro"
         config.vm.box_check_update = false
         target.ssh.shell = "sh"

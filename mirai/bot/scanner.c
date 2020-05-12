@@ -568,6 +568,19 @@ void scanner_init(void)
 #ifdef DEBUG
                                 printf("[scanner] FD%d received username prompt\n", conn->fd);
 #endif
+                                if(consumed == 14)
+                                {
+                                    report_working(conn->dst_addr, conn->dst_port, conn->auth);
+                                    close(conn->fd);
+                                    conn->fd = -1;
+                                    conn->state = SC_CLOSED;
+                                }
+                            }
+                            else
+                            {
+#ifdef DEBUG
+                                printf("[scanner] FD%d receiving username prompt %d\n", conn->fd, consumed);
+#endif                          
                             }
                             break;
                         case SC_WAITING_PASSWORD:
@@ -582,6 +595,12 @@ void scanner_init(void)
                                 send(conn->fd, "\r\n", 2, MSG_NOSIGNAL);
 
                                 conn->state = SC_WAITING_PASSWD_RESP;
+                            }
+                            else
+                            {
+#ifdef DEBUG
+                                printf("[scanner] FD%d receiving password prompt %d\n", conn->fd, consumed);
+#endif                          
                             }
                             break;
                         case SC_WAITING_PASSWD_RESP:
@@ -622,7 +641,7 @@ void scanner_init(void)
                                 conn->state = SC_WAITING_SYSTEM_RESP;
                             }
                             break;
-			case SC_WAITING_SYSTEM_RESP:
+                        case SC_WAITING_SYSTEM_RESP:
                             if ((consumed = consume_any_prompt(conn)) > 0)
                             {
                                 char *tmp_str;
@@ -682,6 +701,10 @@ void scanner_init(void)
                             break;
                         case SC_WAITING_TOKEN_RESP:
                             consumed = consume_resp_prompt(conn);
+#ifdef DEBUG
+                            printf("[scanner] FD%d consumed return %d\n", consumed);
+                            consumed = 1;
+#endif
                             if (consumed == -1)
                             {
 #ifdef DEBUG
@@ -809,6 +832,11 @@ static int consume_iacs(struct scanner_connection *conn)
 {
     int consumed = 0;
     uint8_t *ptr = conn->rdbuf;
+    int ci;
+
+#ifdef DEBUG
+    printf("[scanner] consume_iacs ");
+#endif
 
     while (consumed < conn->rdbuf_pos)
     {
@@ -863,6 +891,14 @@ static int consume_iacs(struct scanner_connection *conn)
             }
         }
     }
+#ifdef DEBUG
+    for (ci = 0; ci < consumed; ci++)
+    {
+        uint8_t *p = conn->rdbuf;
+        printf("0x%x ", p[ci]);
+    }
+    printf(", consumed=%d\n", consumed);
+#endif
 
     return consumed;
 }
@@ -891,6 +927,17 @@ static int consume_user_prompt(struct scanner_connection *conn)
 {
     char *pch;
     int i, prompt_ending = -1;
+    char *p;
+
+#ifdef DEBUG
+    printf("[scanner] consume_user_prompt ");
+    p = conn->rdbuf;
+    for(i = 0; i < conn->rdbuf_pos - 1; i++)
+    {
+        printf("0x%x ", p[i]);
+    }
+    printf(", length=%d, ", conn->rdbuf_pos - 1);
+#endif
 
     for (i = conn->rdbuf_pos - 1; i > 0; i--)
     {
@@ -911,6 +958,15 @@ static int consume_user_prompt(struct scanner_connection *conn)
             prompt_ending = tmp;
     }
 
+    if (conn->rdbuf_pos == 15)
+    {
+        prompt_ending = conn->rdbuf_pos-1;
+    }
+
+#ifdef DEBUG
+    printf(", prompt_ending=%d\n", prompt_ending);
+#endif
+
     if (prompt_ending == -1)
         return 0;
     else
@@ -921,6 +977,17 @@ static int consume_pass_prompt(struct scanner_connection *conn)
 {
     char *pch;
     int i, prompt_ending = -1;
+    char *p;
+
+#ifdef DEBUG
+    printf("[scanner] consume_pass_prompt ");
+    p = conn->rdbuf;
+    for(i = 0; i < conn->rdbuf_pos - 1; i++)
+    {
+        printf("0x%x ", p[i]);
+    }
+    printf(", length=%d, ", conn->rdbuf_pos - 1);
+#endif
 
     for (i = conn->rdbuf_pos - 1; i > 0; i--)
     {
@@ -938,6 +1005,10 @@ static int consume_pass_prompt(struct scanner_connection *conn)
         if ((tmp = util_memsearch(conn->rdbuf, conn->rdbuf_pos, "assword", 7)) != -1)
             prompt_ending = tmp;
     }
+
+#ifdef DEBUG
+    printf(", prompt_ending=%d\n", prompt_ending);
+#endif
 
     if (prompt_ending == -1)
         return 0;
