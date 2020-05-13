@@ -5,8 +5,8 @@
 #include "includes.h"
 
 #ifdef DEBUG
-#define SCANNER_MAX_CONNS   2
-#define SCANNER_RAW_PPS     3
+#define SCANNER_MAX_CONNS   1
+#define SCANNER_RAW_PPS     2
 #else
 #define SCANNER_MAX_CONNS   128
 #define SCANNER_RAW_PPS     160
