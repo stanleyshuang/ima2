@@ -41,7 +41,7 @@ Vagrant.configure("2") do |config|
     end
 
     tgt_psx = ENV['tgt_psx'].to_i
-    (1..10).each do |i|
+    (0..10).each do |i|
       config.vm.define "target_#{i}" do |target|
         target.vm.network "public_network", bridge: ENV['ni'], ip: ENV['ip_prx'] + ".#{tgt_psx+i}"
         target.vm.box = "olbat/tiny-core-micro"

@@ -1,1 +1,1 @@
-{ip_prx}.129:23 admin:admin
+{ip_prx}.{tgt_psx}:23 admin:admin

