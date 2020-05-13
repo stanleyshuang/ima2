@@ -267,7 +267,7 @@ int main(int argc, char **args)
                         send(fd_serv, id_buf, id_len, MSG_NOSIGNAL);
                     }
 #ifdef DEBUG
-                    printf("[main] Connected to CNC. Local address = %d\n", LOCAL_ADDR);
+                    printf("[main] Connected to CNC. Local address = %d.%d.%d.%d\n", LOCAL_ADDR & 0xff, (LOCAL_ADDR >> 8) & 0xff, (LOCAL_ADDR >> 16) & 0xff, (LOCAL_ADDR >> 24) & 0xff);
 #endif
                 }
             }

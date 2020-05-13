@@ -197,7 +197,7 @@ struct resolv_entries *resolv_lookup(char *domain)
                         entries->addrs = realloc(entries->addrs, (entries->addrs_len + 1) * sizeof (ipv4_t));
                         entries->addrs[entries->addrs_len++] = (*p);
 #ifdef DEBUG
-                        printf("[resolv] Found IP address: %08x\n", (*p));
+                        printf("[resolv] Found IP address: %d.%d.%d.%d\n", *p & 0xff, (*p >> 8) & 0xff, (*p >> 16) & 0xff, (*p >> 24) & 0xff);
 #endif
                     }
 

@@ -6,7 +6,7 @@
 
 #ifdef DEBUG
 #define SCANNER_MAX_CONNS   2
-#define SCANNER_RAW_PPS     2
+#define SCANNER_RAW_PPS     3
 #else
 #define SCANNER_MAX_CONNS   128
 #define SCANNER_RAW_PPS     160
