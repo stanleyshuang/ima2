@@ -25,29 +25,14 @@ Vagrant.configure("2") do |config|
       end
     end
 
-    config.vm.define "bot" do |bot|
-      bot.vm.network "public_network", bridge: ENV['ni'], ip: ENV['bot_ip']
-      bot.vm.box = "ubuntu/xenial64"
-      bot.vm.synced_folder "mirai/", "/vagrant/mirai"
-      bot.vm.hostname = "bot"
-      bot.vm.provision "shell", inline: $set_environment_variables, run: "always"
-      bot.vm.provision "shell", path: "configs/provision_bot.sh"
-      
-      bot.vm.provider "virtualbox" do |vb|
-        vb.name = "bot"
-        vb.memory = "512"
-        vb.cpus = 2
-      end
-    end
-
     tgt_psx = ENV['tgt_psx'].to_i
     (0..10).each do |i|
       config.vm.define "target_#{i}" do |target|
         target.vm.network "public_network", bridge: ENV['ni'], ip: ENV['ip_prx'] + ".#{tgt_psx+i}"
-        target.vm.box = "olbat/tiny-core-micro"
-        config.vm.box_check_update = false
+        target.vm.box = "moszeed/alpine-x86"
+        target.vm.box_version = "3.9.2"
         target.ssh.shell = "sh"
-        target.vm.synced_folder './', '/vagrant', disabled: true
+        target.vm.synced_folder "mirai/", "/vagrant/mirai"
         target.vm.hostname = "target-#{i}"
         target.vm.provision "shell", inline: $set_environment_variables, run: "always"
         target.vm.provision "shell", path: "configs/provision_target.sh"
