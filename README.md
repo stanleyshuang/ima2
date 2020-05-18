@@ -1,7 +1,5 @@
 # Overview
-ima2 is a Github project which build a test environment of Mirai Botnet.
-
-The repository is located at https://github.com/stanleyshuang/ima2
+ima2 is a project building a closed test environment of Mirai Botnet.
 
 
 # Mirai Botnet
@@ -13,7 +11,7 @@ The main components are
 2. **Loader**: is listening to bot's reporting. When a bot brute-force logins a target device, it reports the IP, port, username and password to loader. Loader would login the device, identify the hardware architecture then infect the device.
 3. **Bot**: is the binary resident on infected IoT devices. Bot sends heartbeats to CNC Server, brute-force login random selected IPs. Once bot logins successfully, bot reports the data to loader. Bot also receives and performs the attack commands from CNC server.
 
-The other roles
+In addition to the components, In the test environment, there are the other 2 roles
 
 * **Target**: the IoT devices which bot tried to brute-force login and loader tried to infect.
 * **Victim**: the machines which would be DDOS by Mirai.
@@ -56,15 +54,15 @@ Because the build script needs specific environment variables, select or create 
 
 ##### Set Environment Variables
 ```
-    source ./_build/runes-1-qnapxizhi-buffalo/env.sh
+    source ./_build/xxxx/env.sh
 ```
 
 To look at the environment variables, they include
 
-1. **ni: the name of network interface**, It is usually the network interface which connects to the router or gateway of the host machine running VMs ("en6: USB 10/100/1000 LAN" in the example of "runes-1-qnapxizhi-buffalo")
-2. **ip_prx: the first 3 sections of the IPv4 network**, In this example, the router hosts a network of 192.168.11.0/8. ("192.168.11" in the example of "runes-1-qnapxizhi-buffalo")
-3. **cnc_ip" the IP of CNC server**, the IP of the CNC server. It would be associated with domain name, "cnc.mirai,.com", in the built-in DNS server, so that bots could find the CNC with the specific domain name. ("192.168.11.11" in the example of "runes-1-qnapxizhi-buffalo")
-4. **tgt_psz: the 4th section of IP of the first target VM**, In other words, take this example, the IP of the first target VM would be 192.168.0.30. The second one would be 192.168.0.31. Then, the third one would be 192.168.0.32, and so on. ("30" in the example of "runes-1-qnapxizhi-buffalo")
+1. **ni: the name of network interface**, It is usually the network interface which connects to the router or gateway of the host machine running VMs
+2. **ip_prx: the first 3 sections of the IPv4 network**, The router hosts a network, for example, 192.168.11.0/8. In this case, the vaile would be "192.168.11".
+3. **cnc_ip" the IP of CNC server**, This is the IP of the CNC server. It would be associated with domain name, "cnc.mirai,.com", in the built-in DNS server, so that bots could find the CNC with the specific domain name.
+4. **tgt_psz: the 4th section of IP of the first target VM**, If the value is "30", the IP of the first target VM. would be 192.168.11.30. The second one would be 192.168.11.31. Then, the third one would be 192.168.11.32, and so on.
 To verify the correctness, echo the environment variables to see if set successfully or not
 
 ##### Verify Environment Variables
