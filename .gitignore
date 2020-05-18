@@ -143,7 +143,10 @@ mirai/dlr/release/
 mirai/dlr/debug/
 mirai/loader/bins/
 mirai/loader/loader
+mirai/loader/loader.dbg
 mirai/loader/reports
 mirai/bot/resolv.c
 mirai/bot/util.c
 mirai/bot/const.h
+mirai/bot/resolv.c
+mirai/dlr/main.c

@@ -293,12 +293,22 @@ static void handle_event(struct server_worker *wrker, struct epoll_event *ev)
                         printf("Waiting user prompt...\n");
                         #endif
                         printf("Leading: %02x\n", conn->rdbuf[0]);
-			if (conn->rdbuf[0] == 0xff){
+                        if (conn->rdbuf[0] == 0xff){
                           consumed = connection_consume_iacs(conn);
                         }
                         consumed = connection_consume_login_prompt(conn);
                         if (consumed)
                         {
+                            #ifdef DEBUG
+                            printf("!!!!username: [%s] [%d]\n", conn->info.user, strlen(conn->info.user));
+                            #endif
+                            if(conn->info.user[strlen(conn->info.user)-1]>=0x7e)
+                            {
+                                conn->info.user[strlen(conn->info.user)-1] = '\0';
+                                #ifdef DEBUG
+                                printf("!!!!username: [%s] [%d]\n", conn->info.user, strlen(conn->info.user));
+                                #endif
+                            }
                             util_sockprintf(conn->fd, "%s", conn->info.user);
                             strcpy(conn->output_buffer.data, "\r\n");
                             conn->output_buffer.deadline = time(NULL) + 1;
@@ -309,6 +319,9 @@ static void handle_event(struct server_worker *wrker, struct epoll_event *ev)
                         consumed = connection_consume_password_prompt(conn);
                         if (consumed)
                         {
+                            #ifdef DEBUG
+                            printf("!!!!password: [%s] [%d]\n", conn->info.pass, strlen(conn->info.pass));
+                            #endif
                             util_sockprintf(conn->fd, "%s", conn->info.pass);
                             strcpy(conn->output_buffer.data, "\r\n");
                             conn->output_buffer.deadline = time(NULL) + 1;

