@@ -63,13 +63,7 @@ To look at the environment variables, they include
 2. **ip_prx: the first 3 sections of the IPv4 network**, The router hosts a network section, for example, 192.168.11.0/8. In this case, the value would be "192.168.11".
 3. **cnc_ip: the IP of CNC server**, This is the IP of the CNC server. It would be associated with domain name, "cnc.mirai,.com", in the built-in DNS server, so that bots could find the CNC with the domain.
 4. **tgt_psz: the 4th section of IP of the first target VM**, If the value were "30" and ip_prx were "192.168.11", the IP of the first target VM would be 192.168.11.30. Then, the second target VM would be 192.168.11.31. And then, the third one would be 192.168.11.32, and so on.
-To verify the correctness, echo the environment variables to see if set successfully or not
 
-##### Verify Environment Variables
-```
-    echo $ni
-    > en6: USB 10/100/1000 LAN
-```
 
 Compile all necessary binaries and instantiate the Vagrant VMs.
 
