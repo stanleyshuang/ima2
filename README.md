@@ -290,7 +290,7 @@ Back to CNC console, a bot, target_0, connecting to CNC could be observed.
 ```
 
 Check target_0 prompt, bot is trying to brute-force login other random selected targets.
-
+![alt text](https://github.com/stanleyshuang/ima2/blob/master/doc/brute-force-login.png?raw=true)
 
 
 In this example, target_0, 192.168.11.30 is trying 192.168.11.31. This is customized behavior for easily observed.
@@ -298,7 +298,7 @@ In this example, target_0, 192.168.11.30 is trying 192.168.11.31. This is custom
 
 
 When bot successfully login the other target VMs, it reports to loader. Then, loader would take the IP, port, username and password to infect the VM. On loader prompt, the logs could be found.
-
+![alt text](https://github.com/stanleyshuang/ima2/blob/master/doc/loader-drop.png?raw=true)
 
 
 In this example, loader finally identify this is an x86 machine on IP 192.168.11.31, port 23 with account/password: admin/admin.
