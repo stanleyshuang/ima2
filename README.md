@@ -65,6 +65,7 @@ To look at the environment variables, they include
 4. **tgt_psz: the 4th section of IP of the first target VM**, If the value were "30" and ip_prx were "192.168.11", the IP of the first target VM would be 192.168.11.30. Then, the second target VM would be 192.168.11.31. And then, the third one would be 192.168.11.32, and so on.
 
 
+
 Compile all necessary binaries and instantiate the Vagrant VMs.
 
 ##### Build VMs
