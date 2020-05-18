@@ -38,7 +38,7 @@ Leverage Vagrant to deploy the 2 types of VMs
 
 * **mirai**: The VM contains a dnsmasq as the local DNS server to resolve "cnc.mirai.com", a CNC server and a loader implemented by go-lang. Based on Vagrant Box, ubuntu/xenial64, with 2048 MB RAM and 2 CPUs.
 
-* **target_<i>**: A customized bot which would brute force logins the IP next to itself. Based on Vagrant BOX, moszeed/alpine-x86, BOX version, 3.9.2, with 256 MB RAM and 1 CPU.
+* **target_i**: A customized bot which would brute force logins the IP next to itself. Based on Vagrant BOX, moszeed/alpine-x86, BOX version, 3.9.2, with 256 MB RAM and 1 CPU.
 
 # Deployment
 ### Build and Launch VMs
