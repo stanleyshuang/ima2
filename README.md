@@ -143,6 +143,8 @@ Password: password
 ##### Login Mirai CNC Console
 ```
     telnet cnc.mirai.com
+    >> Username: mirai
+    >> Password: ********
 ```
 
 
