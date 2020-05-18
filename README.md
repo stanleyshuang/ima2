@@ -5,7 +5,7 @@ ima2 is a project building a closed test environment of Mirai Botnet.
 # Mirai Botnet
 Mirai (未来) is malware designed for building a large scale botnet of IoT devices.
 
-![alt text](https://github.com/stanleyshuang/ima2/doc/mirai-architecture.jng?raw=true)
+![alt text](https://github.com/stanleyshuang/ima2/doc/mirai-architecture.png?raw=true)
 
 The main components are
 
