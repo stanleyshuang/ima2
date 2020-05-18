@@ -9,23 +9,23 @@ Mirai (未来) is malware designed for building a large scale botnet of IoT devi
 
 The main components are
 
-1. CNC Server: host a database of bots. All bots connect to the CNC Server and wait for receiving and performing attack commands.
-2. Loader: is listening to bot's reporting. When a bot brute-force logins a target device, it reports the IP, port, username and password to loader. Loader would login the device, identify the hardware architecture then infect the device.
-3. Bot: is the binary resident on infected IoT devices. Bot sends heartbeats to CNC Server, brute-force login random selected IPs. Once bot logins successfully, bot reports the data to loader. Bot also receives and performs the attack commands from CNC server.
+1. **CNC Server**: host a database of bots. All bots connect to the CNC Server and wait for receiving and performing attack commands.
+2. **Loader**: is listening to bot's reporting. When a bot brute-force logins a target device, it reports the IP, port, username and password to loader. Loader would login the device, identify the hardware architecture then infect the device.
+3. **Bot**: is the binary resident on infected IoT devices. Bot sends heartbeats to CNC Server, brute-force login random selected IPs. Once bot logins successfully, bot reports the data to loader. Bot also receives and performs the attack commands from CNC server.
 
 The other roles
 
-* Target: the IoT devices which bot tried to brute-force login and loader tried to infect.
-* Victim: the machines which would be DDOS by Mirai.
+* **Target**: the IoT devices which bot tried to brute-force login and loader tried to infect.
+* **Victim**: the machines which would be DDOS by Mirai.
 
 
 The woking sequence is 
 
-1. Scan: A bot brute-force logins another target machine.
-2. Report: When it is successfully, the bot reports the connection information to loader
-3. Infect: Loader listen to bot's reporting, then, leverage the connection information to infect the target.
-4. Heartbeat: If infection successes, the target device became a bot and send heartbeats to CNC Server.
-5. Attack: CNC Server save the bot information in database. Once the administrator requests for an attack, CNC Server sends attack command to bots.
+1. **Scan**: A bot brute-force logins another target machine.
+2. **Report**: When it is successfully, the bot reports the connection information to loader
+3. **Infect**: Loader listen to bot's reporting, then, leverage the connection information to infect the target.
+4. **Heartbeat**: If infection successes, the target device became a bot and send heartbeats to CNC Server.
+5. **Attack**: CNC Server save the bot information in database. Once the administrator requests for an attack, CNC Server sends attack command to bots.
 
 # Pre-requirement
 Required Software
@@ -36,12 +36,12 @@ Required Software
 # Environment
 Leverage Vagrant to deploy the 2 types of VMs
 
-* mirai: The VM contains a dnsmasq as the local DNS server to resolve "cnc.mirai.com", a CNC server and a loader implemented by go-lang. Based on Vagrant Box, ubuntu/xenial64, with 2048 MB RAM and 2 CPUs.
+* **mirai**: The VM contains a dnsmasq as the local DNS server to resolve "cnc.mirai.com", a CNC server and a loader implemented by go-lang. Based on Vagrant Box, ubuntu/xenial64, with 2048 MB RAM and 2 CPUs.
 
-* target_[i]: A customized bot which would brute force logins the IP next to itself. Based on Vagrant BOX, moszeed/alpine-x86, BOX version, 3.9.2, with 256 MB RAM and 1 CPU.
+* **target_<i>**: A customized bot which would brute force logins the IP next to itself. Based on Vagrant BOX, moszeed/alpine-x86, BOX version, 3.9.2, with 256 MB RAM and 1 CPU.
 
 # Deployment
-Build and Launch VMs
+### Build and Launch VMs
 First of all, clone Github repository and enter the project home directory.
 
 Clone Github Repository
@@ -86,7 +86,7 @@ To verify the correctness, check VirtualBox. There should be 5 VMs running.
 
 
 
-DNS Server Settings
+### DNS Server Settings
 On VM host machine, set the DNS server settings to make "cnc.mirai.com" taking effect.
 
 
@@ -112,7 +112,7 @@ Before Set DNS
     > 64 bytes from 192.168.11.11: icmp_seq=2 ttl=64 time=0.535 ms
 ```
 
-Run CNC Server and Loader
+### Run CNC Server and Loader
 Launch CNC Server and loader with the following command.
 
 Run CNC server and loader
