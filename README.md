@@ -96,7 +96,7 @@ Before set this ping cnc.mirai.com is not working.
 
 After set up DNS, ping cnc.mirai.com works well.
 
-##### Before Set DNS
+##### After Set DNS
 ```
     ping cnc.mirai.com
     > PING cnc.mirai.com (192.168.11.11): 56 data bytes
