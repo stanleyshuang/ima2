@@ -301,5 +301,5 @@ When bot successfully login the other target VMs, it reports to loader. Then, lo
 
 
 
-In this example, loader finally identify this is a x86 machine on IP 192.168.11.31, port 23 with account/password: admin/admin.
+In this example, loader finally identify this is an x86 machine on IP 192.168.11.31, port 23 with account/password: admin/admin.
 
