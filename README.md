@@ -136,9 +136,8 @@ If successfully launched, loaders' status could be observed on the prompt as abo
 # Test
 Open another bash console to login CNC server. 
 
-Username: mirai
-
-Password: password
+* Username: mirai
+* Password: password
 
 ##### Login Mirai CNC Console
 ```
