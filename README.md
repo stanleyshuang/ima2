@@ -76,14 +76,14 @@ Compile all necessary binaries and instantiate the Vagrant VMs.
 ```
 
 To verify the correctness, check VirtualBox. There should be 5 VMs running.
-
+![alt text](https://github.com/stanleyshuang/ima2/blob/master/doc/vbox.png?raw=true)
 
 
 
 
 ### DNS Server Settings
 On VM host machine, set the DNS server settings to make "cnc.mirai.com" taking effect.
-
+![alt text](https://github.com/stanleyshuang/ima2/blob/master/doc/dns.png?raw=true)
 
 
 
