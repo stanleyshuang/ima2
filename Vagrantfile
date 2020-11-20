@@ -22,6 +22,8 @@ Vagrant.configure("2") do |config|
         vb.memory = "2048"
         vb.cpus = 2
         vb.customize ["modifyvm", :id, "--uartmode1", "disconnected"]
+        vb.customize ["modifyvm", :id, "--uart1", "0x3F8", "4"]
+        vb.customize ["modifyvm", :id, "--uartmode1", "file", File::NULL]
       end
     end
 

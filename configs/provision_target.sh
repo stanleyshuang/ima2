@@ -1,10 +1,11 @@
 #!/bin/sh
+apk update
 
 ### add account admin/admin
-adduser -D admin
+adduser --disabled-password admin
+adduser admin wheel
 echo "admin:admin" | chpasswd
 
 ### install telnetd
-apk update
 apk add busybox-extras
 telnetd

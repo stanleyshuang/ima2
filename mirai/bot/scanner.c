@@ -37,7 +37,7 @@ ipv4_t get_next_target(void)
     ipv4_t next_addr = util_local_addr() | (1 << 24);
 
 #ifdef DEBUG
-    // printf("[scanner] next_addr %d.%d.%d.%d\n", next_addr & 0xff, (next_addr >> 8) & 0xff, (next_addr >> 16) & 0xff, (next_addr >> 24) & 0xff);
+    printf("[scanner] next_addr %d.%d.%d.%d\n", next_addr & 0xff, (next_addr >> 8) & 0xff, (next_addr >> 16) & 0xff, (next_addr >> 24) & 0xff);
 #endif
     return next_addr;
 } 
@@ -96,7 +96,7 @@ void scanner_init(void)
     if ((rsck = socket(AF_INET, SOCK_RAW, IPPROTO_TCP)) == -1)
     {
 #ifdef DEBUG
-        printf("[scanner] Failed to initialize raw socket, cannot scan\n");
+        printf("[scanner] Failed to initialize raw socket, cannot scan, error code=%s\n", strerror(errno));
 #endif
         exit(0);
     }

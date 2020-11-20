@@ -236,7 +236,7 @@ Launch bot. Be sure running in root permission. The customized bot would connect
     target-0:~# whoami
     root
     target-0:~# cd /vagrant/mirai/
-    target-0:/vagrant/mirai# ./debug/mirai.dbg
+    target-0:/vagrant/mirai# ./debug/mirai.x86.dbg
     DEBUG MODE YO
     [main] We are the only process on this system!
     listening tun0
