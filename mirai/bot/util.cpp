@@ -254,6 +254,11 @@ ipv4_t util_local_addr(void)
 
     getsockname(fd, (struct sockaddr *)&addr, &addr_len);
     close(fd);
+/*
+#ifdef DEBUG
+    printf("[scanner] local_addr %d.%d.%d.%d\n", addr.sin_addr.s_addr & 0xff, (addr.sin_addr.s_addr >> 8) & 0xff, (addr.sin_addr.s_addr >> 16) & 0xff, (addr.sin_addr.s_addr >> 24) & 0xff);
+#endif
+*/
     return addr.sin_addr.s_addr;
 }
 
