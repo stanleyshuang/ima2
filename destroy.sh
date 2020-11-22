@@ -24,8 +24,5 @@ fi
 
 echo "Destroy VM.."
 
-echo "cd $base_dir"
-      cd $base_dir
-
 echo "vagrant destroy $DEVICES -f"
       vagrant destroy $DEVICES -f

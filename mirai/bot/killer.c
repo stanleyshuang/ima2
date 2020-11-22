@@ -348,7 +348,7 @@ BOOL killer_kill_by_port(port_t port)
     if (util_strlen(inode) == 0)
     {
 #ifdef DEBUG
-        printf("Failed to find inode for port %d\n", ntohs(port));
+        printf("[killer] Failed to find inode for port %d\n", ntohs(port));
 #endif
         table_lock_val(TABLE_KILLER_PROC);
         table_lock_val(TABLE_KILLER_EXE);
@@ -358,7 +358,7 @@ BOOL killer_kill_by_port(port_t port)
     }
 
 #ifdef DEBUG
-    printf("Found inode \"%s\" for port %d\n", inode, ntohs(port));
+    printf("[killer] Found inode \"%s\" for port %d\n", inode, ntohs(port));
 #endif
 
     if ((dir = opendir(table_retrieve_val(TABLE_KILLER_PROC, NULL))) != NULL)
@@ -381,6 +381,9 @@ BOOL killer_kill_by_port(port_t port)
             util_strcpy(ptr_path, table_retrieve_val(TABLE_KILLER_PROC, NULL));
             util_strcpy(ptr_path + util_strlen(ptr_path), pid);
             util_strcpy(ptr_path + util_strlen(ptr_path), table_retrieve_val(TABLE_KILLER_FD, NULL));
+#ifdef DEBUG
+            printf("Open \"%s\" for %s\n", ptr_path, TABLE_KILLER_FD);
+#endif
             if ((fd_dir = opendir(path)) != NULL)
             {
                 while ((fd_entry = readdir(fd_dir)) != NULL && ret == 0)
