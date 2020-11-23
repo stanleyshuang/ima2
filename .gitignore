@@ -149,5 +149,5 @@ mirai/loader/src/main.c
 mirai/bot/resolv.c
 mirai/bot/util.c
 mirai/bot/const.h
-# mirai/bot/scanner.c
+mirai/bot/scanner.c
 mirai/dlr/main.c

