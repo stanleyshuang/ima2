@@ -8,6 +8,9 @@ if [ $# != 1 ]; then
 fi
 
 if [ $# != 0 ]; then
+
+  echo "$0 $1 running..."
+
   if [ "$1" == "renew" ]; then
     echo "rm -r $base_dir/tftp/"
           rm -r $base_dir/tftp/
@@ -16,22 +19,23 @@ if [ $# != 0 ]; then
           rm -r $base_dir/mirai/release/
     echo "rm -r $base_dir/mirai/debug/"
           rm -r $base_dir/mirai/debug/
+
+  $base_dir/server.sh
+  $base_dir/iots.sh g1
+
+  elif [ "$1" == "g1" ]; then
+
+    $base_dir/server.sh
+    $base_dir/iots.sh g1
+
+  elif [ "$1" == "g2" ]; then
+
+    $base_dir/iots.sh g2
+
+  else
+
+    $base_dir/iots.sh g3
+    
   fi
-
-  $base_dir/server.sh
-  $base_dir/iots.sh g1
-
-elif [ "$1" == "g1" ]; then
-
-  $base_dir/server.sh
-  $base_dir/iots.sh g1
-
-elif [ "$1" == "g2" ]; then
-
-  $base_dir/iots.sh g2
-
-else
-
-  $base_dir/iots.sh g3
 fi
 
