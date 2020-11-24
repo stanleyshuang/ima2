@@ -3,7 +3,7 @@ base_dir=$(dirname "$0")
 
 if [ $# != 1 ]; then
     echo "!> Missing group information." 
-    echo "!> Usage: $0 <renew | g1 | g2 | g3>"
+    echo "!> Usage: $0 <renew | server | g1 | g2 | g3>"
     exit
 fi
 
@@ -21,7 +21,11 @@ if [ $# != 0 ]; then
           rm -r $base_dir/mirai/debug/
 
   $base_dir/server.sh
-  $base_dir/iots.sh g1
+
+  elif [ "$1" == "server" ]; then
+
+    $base_dir/server.sh
+
 
   elif [ "$1" == "g1" ]; then
 
