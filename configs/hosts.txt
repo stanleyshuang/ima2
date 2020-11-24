@@ -1,1 +1,1 @@
-#{ip_prx}.{tgt_bgn}:23 admin:admin
+{ip_prx}.{tgt_bgn}:23 admin:admin

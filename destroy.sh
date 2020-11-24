@@ -12,11 +12,11 @@ if [ "$1" == "server" ]; then
 
 elif [ "$1" == "g1" ]; then
 
-    DEVICES="target_0 target_1 target_2 target_3"
+    DEVICES="target_0"
 
 elif [ "$1" == "g2" ]; then
 
-    DEVICES="target_4 target_5 target_6 target_7"
+    DEVICES="target_1 target_2 target_3 target_4 target_5"
     
 
 elif [ "$1" == "all" ]; then
@@ -24,7 +24,7 @@ elif [ "$1" == "all" ]; then
     DEVICES="mirai target_0 target_1 target_2 target_3 target_4 target_5 target_6 target_7 target_8 target_9 target_10"
 
 else
-    DEVICES="target_8 target_9 target_10"
+    DEVICES="target_6"
 fi
 
 echo "Destroy VM.."

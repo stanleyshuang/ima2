@@ -458,7 +458,7 @@ void scanner_init(void)
             int timeout;
 
             conn = &conn_table[i];
-            timeout = (conn->state > SC_CONNECTING ? 30 : 5);
+            timeout = (conn->state > SC_CONNECTING ? 45 : 15);
 
             if (conn->state != SC_CLOSED && (fake_time - conn->last_recv) > timeout)
             {

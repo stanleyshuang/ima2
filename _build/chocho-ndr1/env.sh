@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 base_dir=$(dirname "$0")
-export ni="6: USB 10/100/100 LA"
+export ni="en6: USB 10/100/1000 LAN"
 export cnc_ip="192.168.1.199"
 export ip_prx="192.168.1"
 export tgt_bgn="200"
