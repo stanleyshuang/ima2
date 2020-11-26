@@ -35,7 +35,6 @@ Vagrant.configure("2") do |config|
         target.vm.box_version = "3.9.2"
         target.ssh.shell = "sh"
         target.vm.synced_folder "mirai/", "/vagrant/mirai"
-        target.vm.hostname = "target-#{i}"
         target.vm.provision "shell", inline: $set_environment_variables, run: "always"
         target.vm.provision "shell", path: "configs/provision_target.sh"
         
