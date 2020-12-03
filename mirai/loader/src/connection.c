@@ -583,11 +583,11 @@ int connection_consume_upload_methods(struct connection *conn)
         return 0;
 
     if (util_memsearch(conn->rdbuf, offset, "wget: applet not found", 22) == -1)
-        conn->info.upload_method = UPLOAD_TFTP;
+        conn->info.upload_method = UPLOAD_WGET;
     else if (util_memsearch(conn->rdbuf, offset, "tftp: applet not found", 22) == -1)
-        conn->info.upload_method = UPLOAD_TFTP;
+        conn->info.upload_method = UPLOAD_WGET;
     else
-        conn->info.upload_method = UPLOAD_TFTP;
+        conn->info.upload_method = UPLOAD_WGET;
 
     return offset;
 }
