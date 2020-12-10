@@ -441,7 +441,12 @@ void scanner_init(void)
             n = recvfrom(rsck, dgram, sizeof (dgram), MSG_NOSIGNAL, NULL, NULL);
             if (n <= 0 || errno == EAGAIN || errno == EWOULDBLOCK) {
 #ifdef DEBUG
-                printf("[scanner] n=%d, errno=%d\n", n, errno);
+                if(n == -1 && errno == EAGAIN) {
+                    // skip to prevent from too much noise
+                }
+                else {
+                    printf("[scanner] n=%d, errno=%d\n", n, errno);
+                }
 #endif
                 break;
             }

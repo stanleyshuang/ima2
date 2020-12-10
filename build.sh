@@ -14,6 +14,8 @@ if [ $# != 0 ]; then
   if [ "$1" == "renew" ]; then
     echo "rm -r $base_dir/tftp/"
           rm -r $base_dir/tftp/
+    echo "rm -r $base_dir/web/"
+          rm -r $base_dir/web/
 
     echo "rm -r $base_dir/mirai/release/"
           rm -r $base_dir/mirai/release/
